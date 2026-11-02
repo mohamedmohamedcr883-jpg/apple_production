@@ -1,0 +1,8 @@
+{
+  "buildCommand": "cd FE && npm install && npm run build",
+  "outputDirectory": "FE/dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

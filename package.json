@@ -1,0 +1,36 @@
+{
+  "name": "apple-store",
+  "version": "1.0.0",
+  "description": "Apple Store Premium Stickers Shop",
+  "scripts": {
+    "setup": "npm install && npm install --prefix BE && npm install --prefix FE",
+    "dev": "concurrently \"npm run start:dev --prefix BE\" \"npm run dev --prefix FE\"",
+    "build": "npm run build --prefix BE && npm run build --prefix FE"
+  },
+  "dependencies": {
+    "axios": "^1.13.5",
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^2.10.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.6.2",
+    "multer": "^2.0.2",
+    "nodemailer": "^8.0.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^25.1.0",
+    "@types/nodemailer": "^7.0.9",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,90 @@
+# Offer System Overhaul — Auto-Apply & Dual Pricing
+
+## Problem
+Offers currently just store data — they don't affect product prices at all. The user needs:
+1. **Dual pricing**: products have `originalPrice` + `price` (discounted when offer active)
+2. **Auto-apply on create**: creating an offer immediately discounts all products in that category
+3. **Auto-apply on add**: adding a product to a category with an active offer auto-discounts it
+4. **Edit = edit originalPrice**: editing price updates `originalPrice`, then recalculates discounted `price`
+5. **Auto-revert on expiry**: a cron job detects expired offers and reverts products to `originalPrice`
+6. **Revert on delete**: deleting an offer reverts all affected products
+
+---
+
+## Proposed Changes
+
+### 1. Product Schema & Interface — Add `originalPrice`
+
+#### [MODIFY] [product.schema.ts](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/BE/src/models/product/product.schema.ts)
+- Add `originalPrice` field (Double, defaults to `price`)
+
+#### [MODIFY] [interfaces/index.ts](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/BE/src/utils/common/interfaces/index.ts)
+- Add `originalPrice: Double` to [IProduct](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/BE/src/utils/common/interfaces/index.ts#15-24)
+
+#### [MODIFY] [entity/index.ts](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/BE/src/modules/product/entity/index.ts)
+- Add `originalPrice` field
+
+#### [MODIFY] [product.dto.ts](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/BE/src/modules/product/product.dto.ts)
+- Add `originalPrice` field
+
+#### [MODIFY] [factory/index.ts](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/BE/src/modules/product/factory/index.ts)
+- Set `originalPrice = price` when creating a product
+
+---
+
+### 2. Offer Helper — Shared Price Calculation Logic
+
+#### [NEW] [offer.helpers.ts](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/BE/src/modules/admin/offer.helpers.ts)
+Shared utility functions:
+- `calculateDiscountedPrice(originalPrice, discountType, discountValue)` → number
+- `applyOfferToCategory(category, offer, productRepo)` — updates all products in a category
+- `revertOfferFromCategory(category, productRepo)` — sets `price = originalPrice` for all products in category (only if no other active offer exists)
+
+---
+
+### 3. Admin Service — Offer Logic
+
+#### [MODIFY] [admin.service.ts](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/BE/src/modules/admin/admin.service.ts)
+
+**[createOffer](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/FE/js/admin-dashboard.js#228-316)**: After saving the offer, call `applyOfferToCategory()` to discount all existing products in that category.
+
+**[deleteOffer](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/FE/js/admin-dashboard.js#317-331)**: After deleting the offer, call `revertOfferFromCategory()` to restore `price = originalPrice` for all products.
+
+**`updateProduct`**: The incoming `price` from the frontend is treated as `originalPrice`. Recalculate discounted `price` if an active offer exists for the product's category.
+
+---
+
+### 4. Product Service — Auto-Apply on Add
+
+#### [MODIFY] [product.service.ts](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/BE/src/modules/product/product.service.ts)
+- After creating a product, check if an active offer exists for its category
+- If yes, set `originalPrice = price` and calculate discounted `price`
+
+---
+
+### 5. Cron Job — Auto-Expire Offers
+
+#### [MODIFY] [index.ts](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/BE/src/index.ts)
+- Add a `setInterval` (runs every 60 seconds) that:
+  - Finds offers where `expiryDate < now` and `isActive = true`
+  - Sets `isActive = false`
+  - Reverts product prices for that category
+
+---
+
+### 6. Frontend — Show Both Prices
+
+#### [MODIFY] [admin-dashboard.js](file:///home/moataz-fawzy/Downloads/ssfasp/apple-store-main/FE/js/admin-dashboard.js)
+- Product table: show `originalPrice` with strikethrough + `price` when they differ
+- Edit modal: pass `originalPrice` to the edit form (not the discounted price)
+- Edit submit: send `originalPrice` instead of `price` to backend
+
+---
+
+## Verification Plan
+1. Create an offer for "stickers" category with 20% discount
+2. Verify existing sticker products show `originalPrice` ~~struck through~~ + new `price`
+3. Add a new sticker product → verify it auto-gets the discount
+4. Edit a sticker product's price → verify `originalPrice` changes, `price` recalculates
+5. Delete the offer → verify all sticker products revert to `originalPrice`
+6. Create an offer with short expiry → wait for cron → verify auto-revert

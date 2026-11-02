@@ -1,0 +1,34 @@
+/* Base style for all nav links to prepare for the line */
+.nav-link {
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+/* The Line: Centered and Pill-shaped */
+.nav-link::after {
+    content: "";
+    position: absolute;
+    left: 50%;               /* Center the starting point */
+    bottom: -5px;            /* Distance below text */
+    width: 0;                /* Start invisible */
+    height: 3px;             /* Thickness */
+    background: linear-gradient(90deg, #76b852, #A5C89E); 
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    transform: translateX(-50%); /* Keeps it perfectly centered while growing */
+}
+
+/* Hover & Active: The line grows to a nice small width */
+.nav-link:hover::after,
+.nav-link.active::after,
+.nav-link.active-link::after {
+    width: 25px;             /* A short, stylish line instead of 100% */
+}
+
+/* Change text color to match the line on hover/active */
+.nav-link:hover,
+.nav-link.active,
+.nav-link.active-link {
+    color: #198754 !important;
+    font-weight: 600;
+}

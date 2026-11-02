@@ -1,0 +1,77 @@
+# Changes Made to Complete the Admin Dashboard
+
+## Summary
+Built the complete backend admin module to support the existing frontend admin dashboard.
+The frontend (`admin-dashboard.js`, `admin-login.html`) was already making API calls to `/admin/*`
+endpoints that did not exist in the backend. All those endpoints are now implemented.
+
+---
+
+## New Files
+
+### Backend — Admin Module (`BE/src/modules/admin/`)
+
+| File | Purpose |
+|------|---------|
+| `admin.controller.ts` | Express router with 7 routes for admin |
+| `admin.service.ts` | Handles product update, original price tracking, and offer creation/deletion logic |
+| `admin.middleware.ts` | JWT Bearer token verification |
+| `offer.helpers.ts` | **(NEW)** Shared functions to calculate discounts, apply/revert offers to products |
+| `offer.cron.ts` | **(NEW)** Cron job that runs every 60s to detect and expire offers |
+
+### Backend — Offer System Overhaul
+
+| File | Purpose |
+|------|---------|
+| `product.schema.ts` | Added `originalPrice` field |
+| `interfaces/index.ts` | Added `originalPrice` to `IProduct` |
+| `product.dto.ts` | Added `originalPrice` |
+| `entity/index.ts` | Added `originalPrice` to `Product` |
+| `factory/index.ts` | Initialization sets `originalPrice = price` |
+| `product.service.ts` | Auto-detects active offers when creating a new product and applies discount |
+| `index.ts` | Added `scheduleOfferExpiry()` to run background cron job |
+
+---
+
+## Modifed Frontend Files
+
+| File | Change |
+|------|--------|
+| `FE/js/admin-dashboard.js` | Updated product table to display dual pricing (original price with strikethrough + new price). Updated edit modal trigger to use `originalPrice` |
+| `FE/pages/admin-dashboard.html` | Renamed "Price" to "Original Price" in the Product Edit Modal |
+
+---
+
+## Configuration
+
+### Environment Variables (`.env`)
+```
+ADMIN_EMAIL=admin@apple-store.com
+ADMIN_PASSWORD=admin123
+```
+
+> **Note:** Change these credentials before deploying to production.
+
+---
+
+## Offer Auto-Apply System Tests Performed
+- ✅ Create offer: automatically discounts all existing products in the matching category
+- ✅ Add product: adding a new product to a category with an active offer auto-applies the discount
+- ✅ Delete offer: deleting an offer automatically reverts all affected products to `originalPrice`
+- ✅ Expire offer: background cron job detects expiry, sets `isActive=false`, and reverts products
+- ✅ Edit pricing: updating the price from the admin UI explicitly updates the `originalPrice`, allowing the discount to intelligently recalculate
+
+
+### Frontend — Product Detail View Improvements
+
+| File | Change |
+|------|--------|
+| `FE/js/main.js` | Updated `renderProductDetailView` and `openBestsellerDetail` functions to conditionally render the Size option drop-down (displaying only for "stickers"). Also restructured the "Add to Cart" and "Buy it now" layout and related product sections for improved UX. |
+| `FE/pages/admin-dashboard.html` | When adding a product with category "stickers", the price field auto-sets to LE 20 and becomes read-only. For all other categories, the price remains editable. Enforced in both the UI and the `addProduct` function. |
+
+### Sync — Admin Dashboard with Main App (Pricing Logic)
+
+| File | Change |
+|------|--------|
+| `FE/js/main.js` | Added `id="detailPrice"` to price spans in both `renderProductDetailView` and `openBestsellerDetail`. Made `setupDetailEventListeners` size/price logic conditional on `product.category === 'stickers'` only. Fixed `updateModalPrice` to use hardcoded size prices (Small=20, Medium=25) instead of relative `+5`. Fixed cart toast and buy-now to handle undefined size for non-sticker products. |
+| `FE/js/admin-dashboard.js` | Updated `openEditModal` to accept category, disable price field for stickers (read-only, showing "Fixed for stickers"). Updated `executeEdit` to force price=20 for stickers. Passed category from `loadProducts` table to edit button. |

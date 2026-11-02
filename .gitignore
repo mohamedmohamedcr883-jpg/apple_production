@@ -1,0 +1,39 @@
+# Dependency directories
+node_modules/
+BE/node_modules/
+FE/node_modules/
+
+# Environment files (keep *.example tracked)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+BE/.env.local
+FE/.env.local
+FE/.env.production
+
+# Build output
+BE/dist/
+FE/dist/
+dist/
+.vercel/
+
+# Local image assets (served from Cloudinary in production)
+uploads/
+custom/
+استيكر/
+كوستر/
+
+# Utility scripts (not needed in production)
+upload_products.py
+delete_products.py
+upload-to-prod.js
+
+# Large archives (source is already in the repo)
+BE+FE.zip
+*.zip
+
+# OS metadata
+.DS_Store
+Thumbs.db
