@@ -85,14 +85,7 @@ useEffect(() => {
   const safePage = Math.min(currentPage, totalPages);
   const currentProducts = filteredProducts.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
 
-  // Show a window of page numbers starting from the current page
-  const maxVisiblePages = 5;
-  const pageWindowStart = safePage;
-  const pageWindowEnd = Math.min(totalPages, pageWindowStart + maxVisiblePages - 1);
-  const visiblePages = [];
-  for (let page = pageWindowStart; page <= pageWindowEnd; page++) {
-    visiblePages.push(page);
-  }
+  const visiblePages = [...new Set([1, safePage - 1, safePage])].filter(page => page >= 1);
 
   const goToPage = (page) => {
     const next = Math.min(Math.max(1, page), totalPages);
@@ -323,10 +316,15 @@ useEffect(() => {
                     <li className={`page-item ${safePage === 1 ? 'disabled' : ''}`}>
                       <button className="page-link" aria-label="Previous page" onClick={() => goToPage(safePage - 1)}><i className="bi bi-chevron-left"></i></button>
                     </li>
-                    {visiblePages.map((page) => (
-                      <li key={page} className={`page-item ${safePage === page ? 'active' : ''}`}>
-                        <button className="page-link" onClick={() => goToPage(page)}>{page}</button>
-                      </li>
+                    {visiblePages.map((page, i) => (
+                      <React.Fragment key={page}>
+                        {i > 0 && page - visiblePages[i - 1] > 1 && (
+                          <li className="page-item disabled"><span className="page-link">…</span></li>
+                        )}
+                        <li className={`page-item ${safePage === page ? 'active' : ''}`}>
+                          <button className="page-link" onClick={() => goToPage(page)}>{page}</button>
+                        </li>
+                      </React.Fragment>
                     ))}
                     <li className={`page-item ${safePage === totalPages ? 'disabled' : ''}`}>
                       <button className="page-link" aria-label="Next page" onClick={() => goToPage(safePage + 1)}><i className="bi bi-chevron-right"></i></button>
