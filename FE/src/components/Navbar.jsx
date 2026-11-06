@@ -4,7 +4,7 @@ import { useAppContext } from '../context/AppContext';
 import logoImg from '../assets/logo.jpg';
 
 const Navbar = () => {
-  const { cart, user, logout } = useAppContext();
+  const { cart } = useAppContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navRef = useRef(null);
   const location = useLocation();
@@ -100,17 +100,6 @@ const Navbar = () => {
         {/* Avoid Bootstrap .collapse — React owns open/close via .show */}
         <div className={`navbar-collapse mobile-nav-panel ${isMenuOpen ? 'show' : ''}`} id="navbarNav">
           <ul className="navbar-nav ms-0 align-items-center elegant-nav">
-            <li className={`nav-item dropdown ${user ? '' : 'd-none'}`} id="userMenu">
-              <a className="nav-link dropdown-toggle fw-semibold user-box" href="#" role="button" data-bs-toggle="dropdown">
-                <span id="userName">{user?.name || 'User'}</span>
-              </a>
-              <ul className="dropdown-menu">
-                <li>
-                  <button className="dropdown-item text-danger" id="logoutBtn" onClick={() => { logout(); closeMenu(); window.location.href = '/'; }}>Logout</button>
-                </li>
-              </ul>
-            </li>
-
             <li className="nav-item"><Link className="nav-link active" to="/" onClick={handleNavClick}>Home</Link></li>
             <li className="nav-item"><Link className="nav-link" to="/pages/category.html?cat=stickers" onClick={handleNavClick}>Stickers</Link></li>
             <li className="nav-item"><Link className="nav-link" to="/pages/category.html?cat=sticker sheets" onClick={handleNavClick}>Sticker Sheets</Link></li>
@@ -127,12 +116,6 @@ const Navbar = () => {
 
         {/* ICONS */}
         <div className="icon-group d-flex align-items-center">
-          {!user && (
-            <a href="#" className="nav-icon me-2" id="userIcon" data-bs-toggle="modal" data-bs-target="#loginModal" onClick={closeMenu}>
-              <i className="fa-solid fa-user"></i>
-            </a>
-          )}
-
           <a href="#" className="nav-icon me-2" data-bs-toggle="modal" data-bs-target="#searchModal" onClick={closeMenu}>
             <i className="fa-solid fa-magnifying-glass"></i>
           </a>

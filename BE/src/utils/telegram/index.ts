@@ -8,5 +8,5 @@ export const sendTelegramMessage = async (text: string) => {
         chat_id: devConfig.TELEGRAM_CHAT_ID,
         text,
         parse_mode: "HTML",
-    });
+    }, { timeout: 10000 });
 };

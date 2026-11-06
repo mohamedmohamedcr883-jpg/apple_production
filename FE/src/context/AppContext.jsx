@@ -1,23 +1,32 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { API_BASE } from '../config/api';
+import { getItemPrice, normalizeSize } from '../utils/pricing';
 
 const AppContext = createContext();
+
+// Saved carts can hold old prices, removed products, or the same item under different size spellings
+const syncCart = (items, products) => {
+  const synced = [];
+  items.forEach(item => {
+    const product = products.find(p => p.id === item.productId);
+    if (!product) return;
+    const size = normalizeSize(item.size);
+    const existing = synced.find(i => i.productId === item.productId && i.size === size);
+    if (existing) existing.quantity += item.quantity;
+    else synced.push({ ...item, size, price: getItemPrice(product, size) });
+  });
+  localStorage.setItem('cart', JSON.stringify(synced));
+  return synced;
+};
 
 export const AppProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
-  const [user, setUser] = useState(null);
   
   // Modals state (managed globally since they are shared or we can manage them locally, but cart is global)
   const [cartModalOpen, setCartModalOpen] = useState(false);
 
   useEffect(() => {
-    // Load Token/User
-    const token = localStorage.getItem('token');
-    if (token) {
-      setUser({ token }); // Simplification, normally decode or fetch user profile
-    }
-
     // Load Cart
     const storedCart = localStorage.getItem('cart');
     if (storedCart) {
@@ -34,6 +43,7 @@ export const AppProvider = ({ children }) => {
       .then(result => {
         if (result && result.success) {
           setProducts(result.data);
+          setCart(prev => syncCart(prev, result.data));
         }
       })
       .catch(err => console.error("Failed to fetch products:", err));
@@ -100,42 +110,6 @@ export const AppProvider = ({ children }) => {
     localStorage.removeItem('cart');
   };
 
-  const login = async (email, password) => {
-    const res = await fetch(`${API_BASE}/user/login`, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Login failed');
-    
-    localStorage.setItem('token', data.token);
-    setUser({ token: data.token, name: data.data?.name });
-    
-    const toastEl = document.getElementById('loginToast');
-    if (toastEl && window.bootstrap) {
-       toastEl.querySelector('.toast-body').textContent = `Hello again, ${data.data?.name}!`;
-       new window.bootstrap.Toast(toastEl, { delay: 2000 }).show();
-    }
-    return data;
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-  };
-
-  const signup = async (name, email, password, phone) => {
-    const res = await fetch(`${API_BASE}/user/register`, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ name, email, password, phone })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Signup failed');
-    return data;
-  };
-
   return (
     <AppContext.Provider value={{ 
       products, 
@@ -144,10 +118,6 @@ export const AppProvider = ({ children }) => {
       removeFromCart, 
       updateCartQuantity,
       clearCart,
-      user, 
-      login, 
-      logout,
-      signup,
       cartModalOpen, 
       setCartModalOpen 
     }}>

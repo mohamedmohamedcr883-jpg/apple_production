@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
+import { getItemPrice } from '../utils/pricing';
 
 const ProductOptionsModal = () => {
   const { addToCart } = useAppContext();
@@ -26,14 +27,7 @@ const ProductOptionsModal = () => {
     </div>
   );
 
-  // Price depends on selected size; falls back to base product price if no size chosen yet
-  const getPrice = () => {
-    if (size === 'medium') return 25;
-    if (size === 'small') return 20;
-    return product.price ?? 0;
-  };
-
-  const price = getPrice();
+  const price = getItemPrice(product, size) ?? 0;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -76,8 +70,8 @@ const ProductOptionsModal = () => {
                       required
                     >
                       <option value="">Choose an option</option>
-                      <option value="small">Small (5cm*5cm)</option>
-                      <option value="medium">Medium (10cm*10cm)</option>
+                      <option value="Small">Small (5cm*5cm)</option>
+                      <option value="Medium">Medium (10cm*10cm)</option>
                     </select>
                   </div>
 

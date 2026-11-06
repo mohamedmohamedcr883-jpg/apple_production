@@ -56,51 +56,6 @@ export async function fetchProducts() {
     return data;
 }
 
-export async function loginUser(email, password) {
-    const res = await fetch(`${API_BASE}/user/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-    });
-    return await res.json();
-}
-
-export async function registerUser(payload) {
-    const res = await fetch(`${API_BASE}/user/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
-    return await res.json();
-}
-
-export async function sendOtp(email) {
-    const res = await fetch(`${API_BASE}/user/send-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-    });
-    return await res.json();
-}
-
-export async function verifyOtp(email, code) {
-    const res = await fetch(`${API_BASE}/user/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code })
-    });
-    return await res.json();
-}
-
-export async function resetPassword(email, newPassword) {
-    const res = await fetch(`${API_BASE}/user/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, newPassword })
-    });
-    return await res.json();
-}
-
 export async function addTransaction(payload) {
     const res = await fetch(`${API_BASE}/transaction/add`, {
         method: 'POST',

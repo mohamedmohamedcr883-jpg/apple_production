@@ -1,5 +1,4 @@
 import type { Express, NextFunction, Request, Response } from 'express';
-import userController from './modules/user/user.controller';
 import cors from 'cors';
 import transactionController from './modules/transaction/transaction.controller';
 import productController from './modules/product/product.controller';
@@ -60,7 +59,6 @@ export function bootstrap(app: Express, express: any) {
     // Serve the uploads directory statically
     app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
-    app.use('/user', userController);
     app.use('/transaction', transactionController);
     app.use('/product', productController);
     app.use('/admin', adminController);

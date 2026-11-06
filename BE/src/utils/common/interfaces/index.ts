@@ -1,17 +1,5 @@
 import { Double, ObjectId } from "mongoose";
-import { SYS_ROLES, USER_AGENT } from "../enum";
 
-export interface IUser {
-    name: string,
-    phone: string,
-    // role: SYS_ROLES,
-    password: string,
-    email: string,
-    // userAgent: USER_AGENT,
-    otp?: string,
-    otpExpiryDate?: Date,
-    // isVerified: Boolean,
-}
 export interface IProduct {
     price: Double;
     originalPrice: Double;

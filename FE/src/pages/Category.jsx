@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { getItemPrice } from '../utils/pricing';
 
 // Components
 import SearchModal from '../components/SearchModal';
-import LoginModal from '../components/LoginModal';
-import SignupModal from '../components/SignupModal';
-import ForgotPasswordModal from '../components/ForgotPasswordModal';
 import ProductOptionsModal from '../components/ProductOptionsModal';
 import CartModal from '../components/CartModal';
 
@@ -145,7 +143,7 @@ useEffect(() => {
                   <select className="form-select rounded-pill mx-auto mx-md-0" style={{ width: '200px' }} id="detailSize" defaultValue="Medium" onChange={(e) => {
                     const val = e.target.value;
                     const p = document.getElementById('detailPrice');
-                    if (p) p.innerText = `LE ${val === 'Medium' ? '25.00' : '20.00'}`;
+                    if (p) p.innerText = `LE ${getItemPrice(selectedProduct, val).toFixed(2)}`;
                   }}>
                     <option value="Small">Small (5cm*5cm)</option>
                     <option value="Medium">Medium (10cm*10cm)</option>
@@ -170,23 +168,13 @@ useEffect(() => {
               <div className="d-grid gap-2 gap-md-3">
                 <button className="btn btn-dark btn-lg rounded-pill py-3 fw-bold shadow-sm" onClick={() => {
                   const qty = parseInt(document.getElementById('detailQty')?.value || 1);
-                  let size = '';
-                  let finalPrice = selectedProduct.price;
-                  if (showSizeOption) {
-                    size = document.getElementById('detailSize')?.value || 'Medium';
-                    finalPrice = size === 'Medium' ? 25 : 20;
-                  }
-                  addToCart({ ...selectedProduct, price: finalPrice }, qty, size);
+                  const size = showSizeOption ? (document.getElementById('detailSize')?.value || 'Medium') : '';
+                  addToCart({ ...selectedProduct, price: getItemPrice(selectedProduct, size) }, qty, size);
                 }}>Add to cart</button>
                 <button className="btn btn-outline-dark btn-lg rounded-pill py-3 fw-bold" onClick={() => {
                   const qty = parseInt(document.getElementById('detailQty')?.value || 1);
-                  let size = '';
-                  let finalPrice = selectedProduct.price;
-                  if (showSizeOption) {
-                    size = document.getElementById('detailSize')?.value || 'Medium';
-                    finalPrice = size === 'Medium' ? 25 : 20;
-                  }
-                  addToCart({ ...selectedProduct, price: finalPrice }, qty, size);
+                  const size = showSizeOption ? (document.getElementById('detailSize')?.value || 'Medium') : '';
+                  addToCart({ ...selectedProduct, price: getItemPrice(selectedProduct, size) }, qty, size);
                   window.location.href = '/pages/checkout.html';
                 }}>Buy it now</button>
               </div>
@@ -340,9 +328,6 @@ useEffect(() => {
       {/* Modals */}
       <ProductOptionsModal />
       <SearchModal />
-      <LoginModal />
-      <SignupModal />
-      <ForgotPasswordModal />
       <CartModal />
 
       {/* Toast Notification */}
@@ -359,18 +344,6 @@ useEffect(() => {
         </div>
       </div>
 
-      <div className="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="loginToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
-          <div className="toast-header">
-            <i className="bi bi-check-circle-fill text-success me-2"></i>
-            <strong className="me-auto">Login Successful</strong>
-            <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-          </div>
-          <div className="toast-body">
-            You have successfully logged in!
-          </div>
-        </div>
-      </div>
     </>
   );
 };

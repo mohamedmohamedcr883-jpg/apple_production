@@ -7,6 +7,33 @@ import { devConfig } from "../../config/dev.env";
 import { sendEmail } from "../../utils/email";
 import { sendTelegramMessage } from "../../utils/telegram";
 
+const SHIPPING_BY_GOVERNORATE: Record<string, number> = {
+    Cairo: 5, Giza: 6, Alexandria: 7, Qalyubia: 6, Sharqia: 7, Dakahlia: 7,
+    Beheira: 7, Monufia: 6, Gharbia: 6, "Kafr El Sheikh": 7, Damietta: 7, "Port Said": 8,
+    Ismailia: 8, Suez: 8, "North Sinai": 10, "South Sinai": 10, "Red Sea": 10,
+    Faiyum: 7, "Beni Suef": 8, Minya: 8, Assiut: 9, Sohag: 9, Qena: 9, Luxor: 9,
+    Aswan: 10, "New Valley": 10, Matrouh: 10,
+};
+const CASH_ON_DELIVERY_FEE = 2;
+const MIN_ORDER_SUBTOTAL = 50;
+const STICKER_SIZE_PRICES: Record<string, number> = { small: 20, medium: 25 };
+
+interface OrderItem {
+    productId: string;
+    name: string;
+    size?: string | undefined;
+    quantity: number;
+    unitPrice: number;
+}
+
+const getItemPrice = (category: string, price: number, size?: string) =>
+    (category === "stickers" && STICKER_SIZE_PRICES[size?.toLowerCase() ?? ""]) || price;
+
+const escapeHtml = (text: unknown) => String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
 class TransactionService {
     private transactionRepository = new TransactionRepository();
     private productRepository = new ProductRepository();
@@ -26,10 +53,12 @@ class TransactionService {
             const orderNumber = transactionsCount + 1;
 
             // ---------- VALIDATE PRODUCTS ----------
+            const items: OrderItem[] = [];
+
             for (const key in newTransaction.products) {
 
                 const productId = key.split("_")[0] as string;
-                const quantity = newTransaction.products[key]?.quantity as number;
+                const info = newTransaction.products[key]!;
 
                 const product = await this.productRepository.findById(productId);
 
@@ -37,54 +66,90 @@ class TransactionService {
                     throw new BadRequestError(`Product with ID ${productId} not found`);
                 }
 
-                if (product.stock < quantity) {
+                if (product.stock < info.quantity) {
                     throw new BadRequestError(`Not enough stock for ${product.name}`);
                 }
+
+                items.push({
+                    productId,
+                    name: product.name,
+                    size: info.size,
+                    quantity: info.quantity,
+                    unitPrice: getItemPrice(product.category, Number(product.price), info.size),
+                });
+            }
+
+            // ---------- VERIFY TOTAL ----------
+            const shipping = SHIPPING_BY_GOVERNORATE[newTransaction.city as string];
+
+            if (shipping === undefined) {
+                throw new BadRequestError("Please choose a valid governorate");
+            }
+
+            const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+
+            if (subtotal < MIN_ORDER_SUBTOTAL) {
+                throw new BadRequestError(`Please add items worth at least ${MIN_ORDER_SUBTOTAL} LE to proceed.`);
+            }
+
+            const expectedTotal = subtotal + shipping + CASH_ON_DELIVERY_FEE;
+
+            if (Math.abs(newTransaction.totalPrice - expectedTotal) > 0.01) {
+                throw new BadRequestError("Prices have changed. Please refresh the page and review your order.");
             }
 
             // ---------- UPDATE STOCK ----------
-            for (const key in newTransaction.products) {
+            for (const item of items) {
 
-                const productId = key.split("_")[0] as string;
-                const quantity = newTransaction.products[key]?.quantity as number;
+                const product = await this.productRepository.findById(item.productId) as any;
 
-                const product = await this.productRepository.findById(productId) as any;
+                product.stock -= item.quantity;
 
-                product.stock -= quantity;
-
-                await this.productRepository.update(productId, { stock: product.stock });
+                await this.productRepository.update(item.productId, { stock: product.stock });
             }
 
             // ---------- CREATE TRANSACTION ----------
-            const transaction = await this.transactionRepository.create(newTransaction);
+            await this.transactionRepository.create(newTransaction);
 
-            // ---------- BUILD PRODUCT LIST ----------
-            const productEntries = await Promise.all(
-                Object.entries(newTransaction.products).map(async ([key, info]) => {
+            res.status(201).json({
+                success: true,
+                orderNumber,
+                message: "Transaction created successfully."
+            });
 
-                    const productId = key.split("_")[0] as string;
-                    const product = await this.productRepository.findById(productId);
+            // The order is already saved, so a notification failure must not fail the request.
+            void this.sendOrderNotifications(newTransaction, orderNumber, items);
 
-                    if (!product) return null;
+        } catch (error) {
+            next(error);
+        }
+    };
 
-                    const sizeLabel = info.size ? ` (${info.size})` : '';
+    private sendOrderNotifications = async (order: TransactionDTO, orderNumber: number, items: OrderItem[]) => {
+        const results = await Promise.allSettled([
+            this.sendConfirmationEmail(order, orderNumber, items),
+            this.sendTelegramAlert(order, orderNumber, items),
+        ]);
 
-                    return `<tr>
-                    <td style="padding:10px;">${product.name}${sizeLabel}</td>
-                    <td style="padding:10px; text-align:center;">${info.quantity}</td>
-                    <td style="padding:10px; text-align:right;">${product.price} LE</td>
-                </tr>`;
-                })
-            );
+        results.forEach((result, index) => {
+            if (result.status === "rejected") {
+                console.error(`Order #${orderNumber} ${index === 0 ? "email" : "telegram"} failed:`, result.reason?.message);
+            }
+        });
+    };
 
-            const productListHtml = productEntries.filter(Boolean).join("");
+    private sendConfirmationEmail = async (order: TransactionDTO, orderNumber: number, items: OrderItem[]) => {
+        const productListHtml = items.map((item) => `<tr>
+                    <td style="padding:10px;">${escapeHtml(item.name)}${item.size ? ` (${escapeHtml(item.size)})` : ''}</td>
+                    <td style="padding:10px; text-align:center;">${item.quantity}</td>
+                    <td style="padding:10px; text-align:right;">${item.unitPrice} LE</td>
+                </tr>`).join("");
 
-            // ---------- SEND EMAIL ----------
-            await sendEmail({
-                from: `'Apple Store' <${devConfig.SMTP_EMAIL}>`,
-                to: newTransaction.email as string,
-                subject: `Order Confirmation - #${orderNumber}`,
-                html: `
+        await sendEmail({
+            from: `'Apple Store' <${devConfig.SMTP_EMAIL}>`,
+            to: order.email as string,
+            subject: `Order Confirmation - #${orderNumber}`,
+            html: `
             <div style="font-family: Helvetica, Arial, sans-serif; max-width:600px; margin:auto; border:1px solid #e0e0e0; border-radius:10px; overflow:hidden;">
                 
                 <div style="background:#000; padding:20px; text-align:center;">
@@ -94,7 +159,7 @@ class TransactionService {
 
                 <div style="padding:30px; color:#333;">
                     
-                    <h2>Hi ${newTransaction.name},</h2>
+                    <h2>Hi ${escapeHtml(order.name)},</h2>
 
                     <p>Your order has been placed successfully.</p>
 
@@ -114,59 +179,37 @@ class TransactionService {
                     </table>
 
                     <div style="text-align:right; margin-top:20px; font-size:18px;">
-                        <strong>Total: ${newTransaction.totalPrice.toFixed(2)} LE</strong>
+                        <strong>Total: ${order.totalPrice.toFixed(2)} LE</strong>
                     </div>
 
                 </div>
             </div>
             `
-            });
+        });
+    };
 
-            // ---------- TELEGRAM PRODUCTS ----------
-            const telegramProducts = await Promise.all(
-                Object.entries(newTransaction.products).map(async ([key, info]) => {
+    private sendTelegramAlert = async (order: TransactionDTO, orderNumber: number, items: OrderItem[]) => {
+        const productsText = items
+            .map((item) => `• ${escapeHtml(item.name)}${item.size ? ` (${escapeHtml(item.size)})` : ''} × ${item.quantity}`)
+            .join("\n");
 
-                    const productId = key.split("_")[0] as string;
-                    const product = await this.productRepository.findById(productId);
-
-                    if (!product) return null;
-
-                    const sizeLabel = info.size ? ` (${info.size})` : '';
-
-                    return `• ${product.name}${sizeLabel} × ${info.quantity}`;
-                })
-            );
-
-            const productsText = telegramProducts.filter(Boolean).join("\n");
-
-            // ---------- SEND TELEGRAM ----------
-            await sendTelegramMessage(`
+        await sendTelegramMessage(`
 🛒 <b>New Order Received</b>
 
 🧾 <b>Order #:</b> ${orderNumber}
 
-👤 <b>Name:</b> ${newTransaction.name}
-📧 <b>Email:</b> ${newTransaction.email}
-📞 <b>Phone:</b> ${newTransaction.phoneNumber}
-🏙 <b>City:</b> ${newTransaction.city}
-📍 <b>Address:</b> ${newTransaction.address}
+👤 <b>Name:</b> ${escapeHtml(order.name)}
+📧 <b>Email:</b> ${escapeHtml(order.email)}
+📞 <b>Phone:</b> ${escapeHtml(order.phoneNumber)}
+🏙 <b>City:</b> ${escapeHtml(order.city)}
+📍 <b>Address:</b> ${escapeHtml(order.address)}
 
 📦 <b>Products:</b>
 ${productsText}
 
-💳 <b>Payment:</b> ${newTransaction.paymentMethod.toUpperCase()}
-💰 <b>Total:</b> ${newTransaction.totalPrice} LE
+💳 <b>Payment:</b> ${order.paymentMethod.toUpperCase()}
+💰 <b>Total:</b> ${order.totalPrice} LE
         `);
-
-            return res.status(201).json({
-                success: true,
-                orderNumber,
-                message: "Transaction created successfully."
-            });
-
-        } catch (error) {
-            next(error);
-        }
     };
 }
 
