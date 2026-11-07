@@ -6,6 +6,7 @@ import Category from "./pages/Category";
 import Checkout from "./pages/Checkout";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLogin from "./pages/AdminLogin";
+import ComingSoon from "./pages/ComingSoon";
 
 // Components
 import Navbar from "./components/Navbar";
@@ -28,6 +29,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/pages/category.html" element={<Category />} />
+        <Route path="/pages/offers.html" element={<ComingSoon title="Offers" text="Special discounts on stickers, mugs and more are on the way." />} />
+        <Route path="/pages/packages.html" element={<ComingSoon title="Packages" text="Bundles that combine your favourite products at a better price are on the way." />} />
         <Route path="/pages/checkOut.html" element={<Checkout />} />
         <Route path="/checkout.html" element={<Checkout />} />
         <Route path="/pages/admin-dashboard.html" element={<AdminDashboard />} />

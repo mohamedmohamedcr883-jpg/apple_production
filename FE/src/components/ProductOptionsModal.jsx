@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { getItemPrice } from '../utils/pricing';
+import { getCategoryLabel } from '../config/categories';
 
 const ProductOptionsModal = () => {
   const { addToCart } = useAppContext();
@@ -53,7 +54,7 @@ const ProductOptionsModal = () => {
             <div className="row g-4">
               <div className="col-md-12">
                 <h3 id="productOptionsModalLabel">{product.name}</h3>
-                <p className="text-muted" id="productOptionsCategory">{product.category}</p>
+                <p className="text-muted" id="productOptionsCategory">{getCategoryLabel(product.category)}</p>
                 <p className="text-muted" id="plusOption">(For special size contact us)</p>
                 <div className="mb-4">
                   <span id="productOptionsPrice" className="fs-4">LE {price.toFixed(2)}</span>

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { MAIN_CATEGORIES } from '../config/categories';
 import logoImg from '../assets/logo.jpg';
 
 const Navbar = () => {
@@ -101,13 +102,9 @@ const Navbar = () => {
         <div className={`navbar-collapse mobile-nav-panel ${isMenuOpen ? 'show' : ''}`} id="navbarNav">
           <ul className="navbar-nav ms-0 align-items-center elegant-nav">
             <li className="nav-item"><Link className="nav-link active" to="/" onClick={handleNavClick}>Home</Link></li>
-            <li className="nav-item"><Link className="nav-link" to="/pages/category.html?cat=stickers" onClick={handleNavClick}>Stickers</Link></li>
-            <li className="nav-item"><Link className="nav-link" to="/pages/category.html?cat=sticker sheets" onClick={handleNavClick}>Sticker Sheets</Link></li>
-            <li className="nav-item"><Link className="nav-link" to="/pages/category.html?cat=laptop stickers" onClick={handleNavClick}>Laptop Stickers</Link></li>
-            <li className="nav-item"><Link className="nav-link" to="/pages/category.html?cat=visa stickers" onClick={handleNavClick}>Visa Stickers</Link></li>
-            <li className="nav-item"><Link className="nav-link" to="/pages/category.html?cat=mugs" onClick={handleNavClick}>Mugs</Link></li>
-            <li className="nav-item"><Link className="nav-link" to="/pages/category.html?cat=medals" onClick={handleNavClick}>Medlas</Link></li>
-            <li className="nav-item"><Link className="nav-link" to="/pages/category.html?cat=coaster" onClick={handleNavClick}>Coaster</Link></li>
+            {MAIN_CATEGORIES.map(c => (
+              <li key={c.label} className="nav-item"><Link className="nav-link" to={c.to} onClick={handleNavClick}>{c.label}</Link></li>
+            ))}
             <li className="nav-item">
               <a className="nav-link smart-contact-link" href="#contact" onClick={closeMenu}>Contact</a>
             </li>

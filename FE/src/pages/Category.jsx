@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { getItemPrice } from '../utils/pricing';
+import { getCategoryLabel, PRODUCT_TYPES } from '../config/categories';
 
 // Components
 import SearchModal from '../components/SearchModal';
@@ -92,16 +93,7 @@ useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const getCategoryTitle = () => {
-    if (catParam === "sticker sheets") return "Sticker Sheets";
-    if (catParam === "stickers") return "Stickers";
-    if (catParam === "mugs") return "Mugs";
-    if (catParam === "medals") return "Medals";
-    if (catParam === "coaster") return "Coasters";
-    if (catParam === "visa stickers") return "Visa Stickers";
-    if (catParam === "laptop stickers") return "Laptop Stickers";
-    return "Our products";
-  };
+  const getCategoryTitle = () => (catParam ? getCategoryLabel(catParam) : "Our products");
 
   const renderDetailView = () => {
     const getRandomRelatedProducts = () => {
@@ -222,17 +214,7 @@ useEffect(() => {
                   <div className="d-flex gap-3 justify-content-md-end mt-3 mt-md-0 flex-wrap">
                     <select className="form-select filter-select" id="typeFilter" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
                       <option value="all">All Types</option>
-                      <option value="sport">Sport</option>
-                      <option value="nationalitie">Nationality</option>
-                      <option value="cartoon">Cartoon</option>
-                      <option value="marvel">Marvel</option>
-                      <option value="series">Series</option>
-                      <option value="music">Music</option>
-                      <option value="colledge">College</option>
-                      <option value="anime">Anime</option>
-                      <option value="cute">Cute</option>
-                      <option value="memes">Memes</option>
-                      <option value="coat">Coat</option>
+                      {PRODUCT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                     </select>
                     <select className="form-select filter-select" id="sortFilter" value={sortFilter} onChange={e => setSortFilter(e.target.value)}>
                       <option value="default">Sort By</option>

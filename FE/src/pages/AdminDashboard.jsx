@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAdminProducts, getOrders, getOffers, createProduct, deleteProduct, updateProduct, createOffer, deleteOffer } from '../services/api';
+import { getCategoryLabel, PRODUCT_CATEGORIES, PRODUCT_TYPES } from '../config/categories';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('products');
@@ -8,6 +9,8 @@ const AdminDashboard = () => {
   const [offers, setOffers] = useState([]);
   const [adminName, setAdminName] = useState('Admin');
   const [productSearch, setProductSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   
   // Modals
   const [toastMsg, setToastMsg] = useState('');
@@ -95,10 +98,12 @@ const AdminDashboard = () => {
   };
 
   const normalizedProductSearch = productSearch.trim().toLowerCase();
-  const filteredProducts = normalizedProductSearch
-    ? products.filter(product => [product.name, product.category, product.type, product.id, product._id]
+  const filteredProducts = products.filter(product =>
+    (categoryFilter === 'all' || product.category === categoryFilter) &&
+    (typeFilter === 'all' || product.type === typeFilter) &&
+    (!normalizedProductSearch || [product.name, getCategoryLabel(product.category), product.type, product.id, product._id]
       .some(value => String(value || '').toLowerCase().includes(normalizedProductSearch)))
-    : products;
+  );
 
   const submitProduct = async (e) => {
     e.preventDefault();
@@ -278,6 +283,22 @@ const AdminDashboard = () => {
                     </button>
                   )}
                 </div>
+                <div className="row g-3 mt-1">
+                  <div className="col-12 col-md-6">
+                    <label htmlFor="productCategoryFilter">Category</label>
+                    <select id="productCategoryFilter" className="form-control" value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setTypeFilter('all'); }}>
+                      <option value="all">All Categories</option>
+                      {PRODUCT_CATEGORIES.map(c => <option key={c.cat} value={c.cat}>{c.label}</option>)}
+                    </select>
+                  </div>
+                  <div className="col-12 col-md-6">
+                    <label htmlFor="productTypeFilter">Type</label>
+                    <select id="productTypeFilter" className="form-control" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+                      <option value="all">All Types</option>
+                      {PRODUCT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    </select>
+                  </div>
+                </div>
                 <span className="product-search-count">
                   Showing {filteredProducts.length} of {products.length} products
                 </span>
@@ -307,12 +328,12 @@ const AdminDashboard = () => {
                           }
                         }}>
                           <option value="">Select category...</option>
-                          <option value="stickers">Stickers</option>
-                          <option value="sticker sheets">Sticker Sheets</option>
-                          <option value="mugs">Mugs</option>
-                          <option value="medals">Medals</option>
-                          <option value="coaster">Coasters</option>
-                          <option value="visa stickers">Visa Stickers</option>
+                          <option value="stickers">Sticker Single</option>
+                          <option value="sticker sheets">Sticker Sheet</option>
+                          <option value="mugs">Mug</option>
+                          <option value="medals">Keychain</option>
+                          <option value="coaster">Coaster</option>
+                          <option value="visa stickers">Visa Skin</option>
                           <option value="laptop stickers">Laptop Stickers</option>
                         </select>
                       </div>
@@ -322,17 +343,7 @@ const AdminDashboard = () => {
                         <label>Type</label>
                         <select name="type" required className="form-control">
                           <option value="">Select type...</option>
-                          <option value="sport">Sport</option>
-                          <option value="nationalitie">Nationalitie</option>
-                          <option value="cartoon">Cartoon</option>
-                          <option value="marvel">Marvel</option>
-                          <option value="series">Series</option>
-                          <option value="music">Music</option>
-                          <option value="colledge">Colledge</option>
-                          <option value="anime">Anime</option>
-                          <option value="cute">Cute</option>
-                          <option value="memes">Memes</option>
-                          <option value="coat">Coat</option>
+                          {PRODUCT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                         </select>
                       </div>
                       <div className="form-group"><label>Product Image</label><input type="file" name="photo" required accept="image/*" className="form-control" /></div>
@@ -352,7 +363,7 @@ const AdminDashboard = () => {
                       <tr key={p.id || p._id}>
                         <td><img src={p.image} className="product-thumb" alt={p.name} /></td>
                         <td><strong>{p.name}</strong></td>
-                        <td>{p.category}</td>
+                        <td>{getCategoryLabel(p.category)}</td>
                         <td>{p.type}</td>
                         <td>{p.price} LE</td>
                         <td>{p.stock ?? '—'}</td>
@@ -410,12 +421,12 @@ const AdminDashboard = () => {
                        <label>Category</label>
                        <select value={offerForm.category} onChange={e=>setOfferForm({...offerForm, category: e.target.value})} required>
                            <option value="">Select category</option>
-                           <option value="stickers">Stickers</option>
-                           <option value="sticker sheets">Sticker Sheets</option>
-                           <option value="mugs">Mugs</option>
-                           <option value="medals">Medals</option>
-                           <option value="coaster">Coasters</option>
-                           <option value="visa stickers">Visa Stickers</option>
+                           <option value="stickers">Sticker Single</option>
+                           <option value="sticker sheets">Sticker Sheet</option>
+                           <option value="mugs">Mug</option>
+                           <option value="medals">Keychain</option>
+                           <option value="coaster">Coaster</option>
+                           <option value="visa stickers">Visa Skin</option>
                            <option value="laptop stickers">Laptop Stickers</option>
                        </select>
                    </div>
@@ -446,7 +457,7 @@ const AdminDashboard = () => {
                           {offers.map(o => (
                               <tr key={o._id}>
                                   <td><strong>{o.title}</strong></td>
-                                  <td><span className="badge badge-offer">{o.category}</span></td>
+                                  <td><span className="badge badge-offer">{getCategoryLabel(o.category)}</span></td>
                                   <td><strong>{o.discountValue}{o.discountType === 'percentage' ? '%' : ' LE'}</strong></td>
                                   <td>{new Date(o.expiryDate).toLocaleDateString()}</td>
                                   <td>

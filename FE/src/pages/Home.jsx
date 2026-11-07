@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { getItemPrice } from '../utils/pricing';
+import { Link } from 'react-router-dom';
+import { MAIN_CATEGORIES } from '../config/categories';
 import copilotImg from '../assets/Copilot_20260122_175027.png';
 
 // Components
@@ -222,54 +224,16 @@ const Home = () => {
             <p className="text-muted">Explore our stickers, sheets, mugs, and more</p>
           </div>
           <div className="row g-4" id="categorySquaresContainer">
-            <div className="col-6 col-md-3">
-              <a href="pages/category.html?cat=stickers" className="text-decoration-none category-link" data-cat="stickers">
-                <div className="category-card text-center p-3 border rounded hover-shadow">
-                  <img src={copilotImg} alt="Stickers" className="img-fluid mb-2 rounded" />
-                  <h5 className="mb-0 text-dark">Stickers</h5>
-                </div>
-              </a>
-            </div>
-            <div className="col-6 col-md-3">
-              <a href="pages/category.html?cat=sticker sheets" className="text-decoration-none category-link" data-cat="sticker sheets">
-                <div className="category-card text-center p-3 border rounded hover-shadow">
-                  <img src={copilotImg} alt="Stickers Sheets" className="img-fluid mb-2 rounded" />
-                  <h5 className="mb-0 text-dark">Sticker Sheets</h5>
-                </div>
-              </a>
-            </div>
-            <div className="col-6 col-md-3">
-              <a href="pages/category.html?cat=visa stickers" className="text-decoration-none category-link" data-cat="visa stickers">
-                <div className="category-card text-center p-3 border rounded hover-shadow">
-                  <img src={copilotImg} alt="Visa Stickers" className="img-fluid mb-2 rounded" />
-                  <h5 className="mb-0 text-dark">Visa Stickers</h5>
-                </div>
-              </a>
-            </div>
-            <div className="col-6 col-md-3">
-              <a href="pages/category.html?cat=mugs" className="text-decoration-none category-link" data-cat="mugs">
-                <div className="category-card text-center p-3 border rounded hover-shadow">
-                  <img src={copilotImg} alt="mugs" className="img-fluid mb-2 rounded" />
-                  <h5 className="mb-0 text-dark">Mugs</h5>
-                </div>
-              </a>
-            </div>
-            <div className="col-6 col-md-3">
-              <a href="pages/category.html?cat=medals" className="text-decoration-none category-link" data-cat="medals">
-                <div className="category-card text-center p-3 border rounded hover-shadow">
-                  <img src={copilotImg} alt="medals" className="img-fluid mb-2 rounded" />
-                  <h5 className="mb-0 text-dark">Medals</h5>
-                </div>
-              </a>
-            </div>
-            <div className="col-6 col-md-3">
-              <a href="pages/category.html?cat=coaster" className="text-decoration-none category-link" data-cat="coaster">
-                <div className="category-card text-center p-3 border rounded hover-shadow">
-                  <img src={copilotImg} alt="coasters" className="img-fluid mb-2 rounded" />
-                  <h5 className="mb-0 text-dark">Coasters</h5>
-                </div>
-              </a>
-            </div>
+            {MAIN_CATEGORIES.map(c => (
+              <div key={c.label} className="col-6 col-md-3">
+                <Link to={c.to} className="text-decoration-none category-link">
+                  <div className="category-card text-center p-3 border rounded hover-shadow">
+                    <img src={copilotImg} alt={c.label} className="img-fluid mb-2 rounded" />
+                    <h5 className="mb-0 text-dark">{c.label}</h5>
+                  </div>
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </section>

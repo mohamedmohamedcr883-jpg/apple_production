@@ -13,7 +13,7 @@ const syncCart = (items, products) => {
     const size = normalizeSize(item.size);
     const existing = synced.find(i => i.productId === item.productId && i.size === size);
     if (existing) existing.quantity += item.quantity;
-    else synced.push({ ...item, size, price: getItemPrice(product, size) });
+    else synced.push({ ...item, name: product.name, size, price: getItemPrice(product, size) });
   });
   localStorage.setItem('cart', JSON.stringify(synced));
   return synced;

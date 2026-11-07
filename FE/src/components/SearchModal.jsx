@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { getCategoryLabel } from '../config/categories';
 
 const SearchModal = () => {
   const { products } = useAppContext();
@@ -13,7 +14,7 @@ const SearchModal = () => {
     return products
       .filter(product => [
         product.name,
-        product.category,
+        getCategoryLabel(product.category),
         product.type,
         product.description
       ].some(field => String(field || '').toLowerCase().includes(value)))
@@ -66,7 +67,7 @@ const SearchModal = () => {
                     <img src={product.image} alt={product.name} style={{ width: '48px', height: '48px', objectFit: 'contain', borderRadius: '8px' }} />
                     <span>
                       <strong>{product.name}</strong>
-                      <small className="d-block text-muted">{product.category} • {product.price} LE</small>
+                      <small className="d-block text-muted">{getCategoryLabel(product.category)} • {product.price} LE</small>
                     </span>
                   </Link>
                 ))}
