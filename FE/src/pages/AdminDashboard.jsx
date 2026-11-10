@@ -21,7 +21,7 @@ const AdminDashboard = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editTarget, setEditTarget] = useState({ id: null, name: '', price: 0, stock: 0, category: '', image: '' });
+  const [editTarget, setEditTarget] = useState({ id: null, name: '', price: 0, stock: 0, category: '', type: '', image: '' });
 
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [dashboardError, setDashboardError] = useState('');
@@ -139,7 +139,7 @@ const AdminDashboard = () => {
 
   // --- Editing ---
   const attemptEdit = (p) => {
-    setEditTarget({ id: p.id || p._id, name: p.name, price: p.originalPrice ?? p.price, stock: p.stock ?? 0, category: p.category, image: p.image || '' });
+    setEditTarget({ id: p.id || p._id, name: p.name, price: p.originalPrice ?? p.price, stock: p.stock ?? 0, category: p.category, type: p.type, image: p.image || '' });
     setShowEditModal(true);
   };
   const confirmEdit = async () => {
@@ -147,6 +147,7 @@ const AdminDashboard = () => {
     const price = editTarget.category === 'stickers' ? 20 : Number(editTarget.price);
     formData.set('name', editTarget.name);
     formData.set('category', editTarget.category);
+    formData.set('type', editTarget.type);
     formData.set('price', String(price));
     formData.set('stock', String(Number(editTarget.stock)));
     const photo = document.getElementById('editPhoto')?.files?.[0];
@@ -212,6 +213,15 @@ const AdminDashboard = () => {
               </select>
             </div>
             <div className="form-group" style={{ marginTop: '12px' }}>
+              <label htmlFor="editType">Type</label>
+              <select id="editType" className="form-control" value={editTarget.type} onChange={e => setEditTarget({ ...editTarget, type: e.target.value })}>
+                {!PRODUCT_TYPES.some(t => t.value === editTarget.type) && editTarget.type && (
+                  <option value={editTarget.type}>{editTarget.type}</option>
+                )}
+                {PRODUCT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
+            <div className="form-group" style={{ marginTop: '12px' }}>
               <label htmlFor="editPrice">Original Price (LE)</label>
               <input type="number" id="editPrice" step="0.01" value={editTarget.price} onChange={e => setEditTarget({ ...editTarget, price: e.target.value })} readOnly={editTarget.category === 'stickers'} style={editTarget.category === 'stickers' ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : {}} />
             </div>
@@ -270,6 +280,20 @@ const AdminDashboard = () => {
           </div>
 
           <div className={`tab-content ${activeTab === 'products' ? 'active' : ''}`} id="tab-products">
+            <div className="stats-row">
+              <button type="button" className={`stat-card stat-card-total ${categoryFilter === 'all' ? 'active' : ''}`}
+                onClick={() => { setCategoryFilter('all'); setTypeFilter('all'); }}>
+                <span className="stat-count">{products.length}</span>
+                <span className="stat-label">Total Products</span>
+              </button>
+              {PRODUCT_CATEGORIES.map(c => (
+                <button key={c.cat} type="button" className={`stat-card ${categoryFilter === c.cat ? 'active' : ''}`}
+                  onClick={() => { setCategoryFilter(c.cat); setTypeFilter('all'); }}>
+                  <span className="stat-count">{products.filter(p => p.category === c.cat).length}</span>
+                  <span className="stat-label">{c.label}</span>
+                </button>
+              ))}
+            </div>
             <div className="card">
               <div className="card-header">
                 <h2>All Products</h2>

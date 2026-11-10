@@ -214,6 +214,63 @@ body {
     color: var(--gray-900);
 }
 
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 14px 16px;
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-left: 4px solid var(--green-400);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    text-align: left;
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    border-color: var(--green-400);
+}
+
+.stat-card.active {
+    background: var(--green-50);
+    border-color: var(--green-500);
+}
+
+.stat-card-total {
+    border-left-color: var(--yellow-500);
+}
+
+.stat-card-total.active {
+    background: var(--yellow-50);
+    border-color: var(--yellow-500);
+}
+
+.stat-count {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--green-700);
+}
+
+.stat-card-total .stat-count {
+    color: var(--yellow-600);
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--gray-500);
+}
+
 .product-search-bar {
     display: flex;
     align-items: end;
