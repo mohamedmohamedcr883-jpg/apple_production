@@ -6,6 +6,7 @@ import { TransactionRepository } from "../../models/transaction/transaction.repo
 import { OfferRepository } from "../../models/offer/offer.repository";
 import { OfferHelper } from "./offer.helpers";
 import cloudinary from "../../config/cloudinary";
+import { PRODUCT_CATEGORY } from "../../utils/common/enum";
 
 class AdminService {
     private productRepository = new ProductRepository();
@@ -81,7 +82,7 @@ class AdminService {
     public updateProduct = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = req.params.id as string;
-            const { name, price, stock } = req.body;
+            const { name, price, stock, category } = req.body;
             const photo = req.file;
 
             const product = await this.productRepository.findById(id);
@@ -89,19 +90,24 @@ class AdminService {
                 return res.status(404).json({ success: false, message: "Product not found" });
             }
 
+            if (category !== undefined && !Object.values(PRODUCT_CATEGORY).includes(category)) {
+                return res.status(400).json({ success: false, message: "Invalid category" });
+            }
+
             const updateData: any = {};
             if (name !== undefined) updateData.name = name;
-            if (price !== undefined) {
+            if (category !== undefined) updateData.category = category;
+            if (price !== undefined || category !== undefined) {
                 // The price from the frontend is the original price
-                const originalPrice = Number(price);
+                const originalPrice = price !== undefined ? Number(price) : Number(product.originalPrice ?? product.price);
                 updateData.originalPrice = originalPrice;
                 // Calculate if there's an active offer
-                updateData.price = await OfferHelper.calculatePriceWithActiveOffers(product.category, originalPrice);
+                updateData.price = await OfferHelper.calculatePriceWithActiveOffers(category ?? product.category, originalPrice);
             }
             if (stock !== undefined) updateData.stock = Number(stock);
             if (photo) {
                 const { secure_url } = await cloudinary.uploader.upload(photo.path, {
-                    folder: `apple-store/${product.category}/${product.type}`
+                    folder: `apple-store/${category ?? product.category}/${product.type}`
                 });
                 updateData.image = secure_url;
             }

@@ -193,7 +193,7 @@ const Home = () => {
                                   </div>
                                   
                                   {(p.stock != null && p.stock <= 0) ? (
-                                    <button className="btn btn-secondary btn-sm w-100 rounded-pill" disabled>Out of Stock</button>
+                                    <button className="btn btn-secondary btn-sm w-100 rounded-pill" disabled>Sold Out</button>
                                   ) : p.category === 'stickers' ? (
                                     <button className="btn btn-outline-success btn-sm w-100 rounded-pill open-product-options"
                                             data-bs-toggle="modal"

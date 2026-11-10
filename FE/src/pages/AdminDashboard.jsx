@@ -146,6 +146,7 @@ const AdminDashboard = () => {
     const formData = new FormData();
     const price = editTarget.category === 'stickers' ? 20 : Number(editTarget.price);
     formData.set('name', editTarget.name);
+    formData.set('category', editTarget.category);
     formData.set('price', String(price));
     formData.set('stock', String(Number(editTarget.stock)));
     const photo = document.getElementById('editPhoto')?.files?.[0];
@@ -205,6 +206,12 @@ const AdminDashboard = () => {
               <input type="text" id="editName" value={editTarget.name} onChange={e => setEditTarget({ ...editTarget, name: e.target.value })} />
             </div>
             <div className="form-group" style={{ marginTop: '12px' }}>
+              <label htmlFor="editCategory">Category</label>
+              <select id="editCategory" className="form-control" value={editTarget.category} onChange={e => setEditTarget({ ...editTarget, category: e.target.value })}>
+                {PRODUCT_CATEGORIES.map(c => <option key={c.cat} value={c.cat}>{c.label}</option>)}
+              </select>
+            </div>
+            <div className="form-group" style={{ marginTop: '12px' }}>
               <label htmlFor="editPrice">Original Price (LE)</label>
               <input type="number" id="editPrice" step="0.01" value={editTarget.price} onChange={e => setEditTarget({ ...editTarget, price: e.target.value })} readOnly={editTarget.category === 'stickers'} style={editTarget.category === 'stickers' ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : {}} />
             </div>
@@ -245,6 +252,10 @@ const AdminDashboard = () => {
             </button>
           </nav>
           <div className="sidebar-footer">
+            <a href="/" className="logout-btn" style={{ textDecoration: 'none', marginBottom: '8px' }}>
+              <span className="nav-icon">←</span>
+              <span>Back to the Store</span>
+            </a>
             <button className="logout-btn" onClick={lgout}>
               <span className="nav-icon">🚪</span>
               <span>Logout</span>
