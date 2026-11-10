@@ -162,6 +162,17 @@ body {
     background: var(--red-50);
 }
 
+.store-btn {
+    text-decoration: none;
+    margin-bottom: 8px;
+    color: var(--green-700);
+}
+
+.store-btn:hover {
+    background: var(--green-50);
+    color: var(--green-700);
+}
+
 /* --- Main Content --- */
 .main-content {
     flex: 1;
@@ -611,137 +622,240 @@ table img.product-thumb {
     }
 }
 
-/* --- Responsive --- */
 @media (max-width: 768px) {
-    .sidebar {
-        width: 60px;
-        padding: 16px 0;
-    }
-
-    .sidebar-logo span,
-    .nav-item span,
-    .logout-btn span {
-        display: none;
-    }
-
-    .sidebar-logo {
-        padding: 0 10px 16px;
-        justify-content: center;
-    }
-
-    .nav-item,
-    .logout-btn {
-        justify-content: center;
-        padding: 12px;
-    }
-
-    .main-content {
-        margin-left: 60px;
-        padding: 20px;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .admin-modal {
-        padding: 24px;
-        margin: 16px;
-    }
-}
-
-@media (max-width: 576px) {
     .admin-layout {
         flex-direction: column;
     }
 
-    .sidebar {
+    .admin-layout .sidebar {
         width: 100%;
-        height: auto;
+        height: 76px;
         position: fixed;
-        bottom: 0;
-        top: auto;
-        left: 0;
+        top: 0;
+        bottom: auto;
         flex-direction: row;
-        padding: 0;
+        align-items: center;
+        padding: 8px;
         border-right: none;
-        border-top: 1px solid var(--gray-200);
-        z-index: 1000;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        border-bottom: 1px solid var(--gray-200);
+        box-shadow: var(--shadow-sm);
     }
 
-    .sidebar-logo {
+    .admin-layout .sidebar-logo {
         display: none;
     }
 
-    .sidebar-nav {
+    .admin-layout .sidebar-nav {
         flex-direction: row;
-        justify-content: space-around;
-        padding: 8px;
-        width: 100%;
+        padding: 0;
+        gap: 4px;
+        min-width: 0;
     }
 
-    .sidebar-footer {
-        padding: 8px;
+    .admin-layout .nav-item {
+        flex: 1;
+        flex-direction: column;
+        justify-content: center;
+        padding: 8px 4px;
+        gap: 4px;
+        font-size: 12px;
+        line-height: 1.2;
+        min-height: 52px;
+    }
+
+    .admin-layout .sidebar-footer {
+        display: flex;
+        gap: 4px;
+        padding: 0 0 0 8px;
+        margin-left: 8px;
         border-top: none;
         border-left: 1px solid var(--gray-200);
     }
 
-    .nav-item,
-    .logout-btn {
+    .admin-layout .logout-btn {
+        width: 44px;
+        min-height: 52px;
+        padding: 4px;
         flex-direction: column;
-        padding: 6px;
         gap: 4px;
-        align-items: center;
-    }
-
-    .nav-item .nav-icon,
-    .logout-btn .nav-icon {
-        font-size: 20px;
-    }
-
-    .nav-item span,
-    .logout-btn span {
-        display: block;
         font-size: 10px;
-        font-weight: 600;
+        line-height: 1.2;
+        justify-content: center;
+        margin-bottom: 0;
     }
 
-    .main-content {
+    .admin-layout .store-btn span:last-child {
+        font-size: 0;
+    }
+
+    .admin-layout .store-btn span:last-child::after {
+        content: 'Store';
+        font-size: 10px;
+    }
+
+    .admin-layout .main-content {
         margin-left: 0;
-        padding: 16px;
-        padding-bottom: 80px; /* Space for bottom tab bar */
+        padding: 92px 16px 16px;
+        min-width: 0;
+        width: 100%;
     }
 
-    .page-header {
-        flex-direction: column;
-        align-items: flex-start;
+    .admin-layout .page-header {
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .admin-layout .page-header h1 {
+        font-size: 22px;
+    }
+
+    .admin-layout .admin-name {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .admin-layout .stats-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .admin-layout .stat-card {
+        min-height: 76px;
+        padding: 12px;
+    }
+
+    .admin-layout .stat-count {
+        font-size: 22px;
+    }
+
+    .admin-layout .card {
+        padding: 14px;
+    }
+
+    .admin-layout .card-header {
+        flex-wrap: wrap;
         gap: 12px;
     }
 
-    .page-header h1 {
-        font-size: 20px;
+    .admin-layout .product-search-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
     }
 
-    .card {
+    .admin-layout .product-search-bar label,
+    .admin-layout .product-search-count {
+        padding-bottom: 0;
+    }
+
+    .admin-layout .product-search-controls,
+    .admin-layout .product-search-bar .row {
+        flex: none;
+        min-width: 0;
+    }
+
+    .admin-layout .product-search-bar select,
+    .admin-layout .product-search-controls input,
+    .admin-modal input,
+    .admin-modal select {
+        min-height: 44px;
+        font-size: 16px;
+        min-width: 0;
+        width: 100%;
+    }
+
+    .admin-layout .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-layout .btn,
+    .admin-modal .btn {
+        min-height: 44px;
+        justify-content: center;
+    }
+
+    .admin-layout .products-table,
+    .admin-layout .products-table tbody {
+        display: block;
+    }
+
+    .admin-layout .products-table thead {
+        display: none;
+    }
+
+    .admin-layout .products-table tr {
+        display: grid;
+        grid-template-columns: 64px minmax(0, 1fr);
+        grid-template-areas: 'image name' 'image category' 'image type' 'price stock' 'actions actions';
+        gap: 6px 12px;
+        padding: 14px;
+        margin-bottom: 12px;
+        border: 1px solid var(--gray-200);
+        border-radius: 12px;
+        background: var(--white);
+    }
+
+    .admin-layout .products-table td {
+        padding: 0;
+        border: none;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        min-width: 0;
+    }
+
+    .admin-layout .products-table .cell-img { grid-area: image; }
+    .admin-layout .products-table .cell-name { grid-area: name; }
+    .admin-layout .products-table .cell-cat { grid-area: category; }
+    .admin-layout .products-table .cell-type { grid-area: type; color: var(--gray-500); }
+    .admin-layout .products-table .cell-price { grid-area: price; font-weight: 600; color: var(--green-700); }
+    .admin-layout .products-table .cell-stock { grid-area: stock; text-align: right; }
+    .admin-layout .products-table .cell-stock::before { content: 'Stock: '; color: var(--gray-500); }
+    .admin-layout .products-table .cell-actions { grid-area: actions; margin-top: 6px; }
+
+    .admin-layout .products-table .product-thumb {
+        width: 64px;
+        height: 64px;
+        object-fit: contain;
+    }
+
+    .admin-layout .products-table .action-btns {
+        gap: 10px;
+    }
+
+    .admin-layout .products-table .action-btns .btn {
+        flex: 1;
+        font-size: 14px;
+    }
+
+    .admin-layout .products-table .empty-state {
+        grid-column: 1 / -1;
         padding: 16px;
     }
 
-    .card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
+    #editModal,
+    #deleteModal {
+        align-items: flex-end;
+        padding-top: 16px;
     }
 
-    table th, 
-    table td {
-        padding: 10px 8px;
-        font-size: 13px;
-        white-space: nowrap;
+    #editModal .admin-modal,
+    #deleteModal .admin-modal {
+        max-width: 100%;
+        max-height: calc(100dvh - 16px);
+        border-radius: 20px 20px 0 0;
+        padding: 20px 16px calc(16px + env(safe-area-inset-bottom));
+        overscroll-behavior: contain;
     }
 
-    .action-btns {
-        flex-direction: column;
-        gap: 4px;
+    .admin-modal .modal-btns {
+        position: sticky;
+        bottom: -1px;
+        padding: 12px 0;
+        background: var(--white);
+    }
+
+    .admin-modal .modal-btns .btn {
+        flex: 1;
     }
 }

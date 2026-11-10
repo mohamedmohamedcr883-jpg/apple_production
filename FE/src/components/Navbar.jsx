@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { MAIN_CATEGORIES } from '../config/categories';
+import { MAIN_CATEGORIES, PRODUCT_TYPES } from '../config/categories';
 import logoImg from '../assets/logo.jpg';
 
 const Navbar = () => {
-  const { cart } = useAppContext();
+  const { cart, products } = useAppContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navRef = useRef(null);
   const location = useLocation();
@@ -102,9 +102,25 @@ const Navbar = () => {
         <div className={`navbar-collapse mobile-nav-panel ${isMenuOpen ? 'show' : ''}`} id="navbarNav">
           <ul className="navbar-nav ms-0 align-items-center elegant-nav">
             <li className="nav-item"><Link className="nav-link active" to="/" onClick={handleNavClick}>Home</Link></li>
-            {MAIN_CATEGORIES.map(c => (
-              <li key={c.label} className="nav-item"><Link className="nav-link" to={c.to} onClick={handleNavClick}>{c.label}</Link></li>
-            ))}
+            {MAIN_CATEGORIES.map(c => {
+              const types = c.cat ? [...new Set(products.filter(p => p.category === c.cat).map(p => p.type).filter(Boolean))].sort() : [];
+              return (
+                <li key={c.label} className={`nav-item ${types.length ? 'category-nav-item' : ''}`}>
+                  <Link className="nav-link" to={c.to} onClick={handleNavClick}>{c.label}</Link>
+                  {types.length > 0 && (
+                    <ul className="category-type-menu" aria-label={`${c.label} types`}>
+                      {types.map(type => (
+                        <li key={type}>
+                          <Link to={`${c.to}&type=${encodeURIComponent(type)}`} onClick={handleNavClick}>
+                            {PRODUCT_TYPES.find(t => t.value === type)?.label || type}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
             <li className="nav-item">
               <a className="nav-link smart-contact-link" href="#contact" onClick={closeMenu}>Contact</a>
             </li>

@@ -11,21 +11,19 @@ import CartModal from '../components/CartModal';
 
 const Category = () => {
   const { products, addToCart } = useAppContext();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const catParam = searchParams.get('cat');
 
-  const [typeFilter, setTypeFilter] = useState('all');
+  const typeFilter = searchParams.get('type') || 'all';
   const [sortFilter, setSortFilter] = useState('default');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const [selectedProduct, setSelectedProduct] = useState(null);
 const productId = searchParams.get('productId');
   useEffect(() => {
-    // Reset page and type filter when category changes
     setCurrentPage(1);
-    setTypeFilter('all');
     setSelectedProduct(null);
-  }, [catParam]);
+  }, [catParam, typeFilter]);
 useEffect(() => {
   if (!productId) return;
 
@@ -205,23 +203,39 @@ useEffect(() => {
           <section className="filter-section py-4">
             <div className="container">
               <div className="row align-items-center">
-                <div className="col-md-6">
+                <div className="col-lg-4">
                   <h2 className="section-title mb-0">
                     <span id="categoryTitle">{getCategoryTitle()}</span>
                   </h2>
                 </div>
-                <div className="col-md-6">
-                  <div className="d-flex gap-3 justify-content-md-end mt-3 mt-md-0 flex-wrap">
-                    <select className="form-select filter-select" id="typeFilter" value={typeFilter} onChange={e => { setTypeFilter(e.target.value); setCurrentPage(1); }}>
-                      <option value="all">All Types</option>
-                      {PRODUCT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                    </select>
-                    <select className="form-select filter-select" id="sortFilter" value={sortFilter} onChange={e => setSortFilter(e.target.value)}>
-                      <option value="default">Sort By</option>
-                      <option value="price-low">Price: Low to High</option>
-                      <option value="price-high">Price: High to Low</option>
-                      <option value="name">Name A-Z</option>
-                    </select>
+                <div className="col-lg-8">
+                  <div className="row g-3 mt-1 mt-lg-0 catalog-filters">
+                    <div className="col-12 col-sm-6">
+                      <label className="form-label" htmlFor="typeFilter">Type</label>
+                      <select className="form-select filter-select" id="typeFilter" value={typeFilter} onChange={e => {
+                        const params = new URLSearchParams(searchParams);
+                        params.delete('productId');
+                        if (e.target.value === 'all') params.delete('type');
+                        else params.set('type', e.target.value);
+                        setCurrentPage(1);
+                        setSearchParams(params);
+                      }}>
+                        <option value="all">All Types</option>
+                        {typeFilter !== 'all' && !PRODUCT_TYPES.some(t => t.value === typeFilter) && (
+                          <option value={typeFilter}>{typeFilter}</option>
+                        )}
+                        {PRODUCT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                      </select>
+                    </div>
+                    <div className="col-12 col-sm-6">
+                      <label className="form-label" htmlFor="sortFilter">Sort</label>
+                      <select className="form-select filter-select" id="sortFilter" value={sortFilter} onChange={e => setSortFilter(e.target.value)}>
+                        <option value="default">Sort By</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="name">Name A-Z</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -154,6 +154,38 @@
         margin: 0 0.5rem;
     }
 
+    .floating-whatsapp {
+        position: fixed;
+        bottom: calc(20px + env(safe-area-inset-bottom));
+        left: calc(20px + env(safe-area-inset-left));
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #25d366;
+        color: #fff;
+        font-size: 30px;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
+
+    .floating-whatsapp:hover,
+    .floating-whatsapp:focus-visible {
+        background: #128c7e;
+        color: #fff;
+    }
+
+    .filter-section .catalog-filters .filter-select {
+        width: 100%;
+        min-width: 0;
+        min-height: 44px;
+        font-size: 16px;
+        margin-bottom: 0;
+    }
+
     /* Cart badge */
     .cart-count {
         font-size: 0.75rem;
@@ -333,6 +365,56 @@
 .navbar-nav .nav-link:hover::after,
 .navbar-nav .nav-link.active::after {
     width: 20px; /* Instead of 100%, a short line looks more premium */
+}
+
+.category-type-menu {
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 8px;
+}
+
+@media (min-width: 992px) {
+    .navbar .category-nav-item {
+        position: relative;
+    }
+
+    .navbar .category-type-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        min-width: 180px;
+        max-height: min(60vh, 420px);
+        overflow-y: auto;
+        background: var(--navbar-bg, #eff9e4);
+        border: 1px solid rgba(118, 184, 82, 0.2);
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        z-index: 1060;
+    }
+
+    .navbar .category-nav-item:hover > .category-type-menu,
+    .navbar .category-nav-item:focus-within > .category-type-menu {
+        display: block;
+    }
+
+    .navbar .category-type-menu a {
+        display: block;
+        padding: 10px 12px;
+        border-radius: 6px;
+        color: #333;
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.4;
+        white-space: nowrap;
+        text-decoration: none;
+    }
+
+    .navbar .category-type-menu a:hover,
+    .navbar .category-type-menu a:focus-visible {
+        background: rgba(118, 184, 82, 0.1);
+        color: #76b852;
+    }
 }
 
     @keyframes float {

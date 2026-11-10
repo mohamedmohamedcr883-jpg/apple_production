@@ -38,6 +38,11 @@ function App() {
       </Routes>
 
       {!isAdminRoute && !hideFooter && <Footer />}
+      {!isAdminRoute && (
+        <a className="floating-whatsapp" href="https://wa.me/201068458049" target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp" title="Chat with us on WhatsApp">
+          <i className="fa-brands fa-whatsapp" aria-hidden="true"></i>
+        </a>
+      )}
     </>
   );
 }

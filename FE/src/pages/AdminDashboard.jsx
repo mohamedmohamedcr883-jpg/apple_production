@@ -43,6 +43,38 @@ const AdminDashboard = () => {
     loadOffers();
   }, []);
 
+  useEffect(() => {
+    if (!showEditModal && !showDeleteModal) return;
+    const modal = document.querySelector(showEditModal ? '#editModal .admin-modal' : '#deleteModal .admin-modal');
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    modal.focus({ preventScroll: true });
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setShowEditModal(false);
+        setShowDeleteModal(false);
+      }
+      if (event.key !== 'Tab') return;
+      const controls = [...modal.querySelectorAll('input, select, button')];
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === modal)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+      previousFocus?.focus({ preventScroll: true });
+    };
+  }, [showEditModal, showDeleteModal]);
+
   const triggerToast = (msg, type = 'success') => {
     setToastMsg(msg);
     setToastType(type);
@@ -178,8 +210,8 @@ const AdminDashboard = () => {
 
       {showDeleteModal && (
         <div className="modal-overlay show" id="deleteModal" style={{ display: 'flex' }}>
-          <div className="admin-modal">
-            <h3>⚠️ Delete Product</h3>
+          <div className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="deleteProductTitle" tabIndex={-1}>
+            <h3 id="deleteProductTitle">⚠️ Delete Product</h3>
             <p>Are you sure you want to delete <strong>{deleteTarget?.name}</strong>? This action cannot be undone.</p>
             <div className="modal-btns">
               <button className="btn" style={{ background: 'var(--gray-100)', color: 'var(--gray-700)' }} onClick={() => setShowDeleteModal(false)}>Cancel</button>
@@ -191,8 +223,8 @@ const AdminDashboard = () => {
 
       {showEditModal && (
         <div className="modal-overlay show" id="editModal" style={{ display: 'flex' }}>
-          <div className="admin-modal">
-            <h3>✏️ Edit Product</h3>
+          <div className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="editProductTitle" tabIndex={-1}>
+            <h3 id="editProductTitle">✏️ Edit Product</h3>
             {editTarget.image && (
               <div className="admin-modal-image">
                 <img
@@ -262,11 +294,11 @@ const AdminDashboard = () => {
             </button>
           </nav>
           <div className="sidebar-footer">
-            <a href="/" className="logout-btn" style={{ textDecoration: 'none', marginBottom: '8px' }}>
+            <a href="/" className="logout-btn store-btn" title="Back to the Store" aria-label="Back to the Store">
               <span className="nav-icon">←</span>
               <span>Back to the Store</span>
             </a>
-            <button className="logout-btn" onClick={lgout}>
+            <button className="logout-btn" onClick={lgout} title="Logout" aria-label="Logout">
               <span className="nav-icon">🚪</span>
               <span>Logout</span>
             </button>
@@ -391,18 +423,18 @@ const AdminDashboard = () => {
 
               {dashboardError && activeTab === 'products' && <div className="empty-state">{dashboardError}</div>}
               <div className="table-wrap">
-                <table>
+                <table className="products-table">
                   <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Type</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead>
                   <tbody id="productsTableBody">
                     {filteredProducts.map(p => (
                       <tr key={p.id || p._id}>
-                        <td><img src={p.image} className="product-thumb" alt={p.name} /></td>
-                        <td><strong>{p.name}</strong></td>
-                        <td>{getCategoryLabel(p.category)}</td>
-                        <td>{p.type}</td>
-                        <td>{p.price} LE</td>
-                        <td>{p.stock ?? '—'}</td>
-                        <td>
+                        <td className="cell-img"><img src={p.image} className="product-thumb" alt={p.name} loading="lazy" /></td>
+                        <td className="cell-name"><strong>{p.name}</strong></td>
+                        <td className="cell-cat">{getCategoryLabel(p.category)}</td>
+                        <td className="cell-type">{p.type}</td>
+                        <td className="cell-price">{p.price} LE</td>
+                        <td className="cell-stock" data-label="Stock">{p.stock ?? '—'}</td>
+                        <td className="cell-actions">
                           <div className="action-btns">
                             <button className="btn btn-warning btn-sm" onClick={() => attemptEdit(p)}>✏️ Edit</button>
                             <button className="btn btn-danger btn-sm" onClick={() => attemptDelete(p.id || p._id, p.name)}>🗑️ Delete</button>
