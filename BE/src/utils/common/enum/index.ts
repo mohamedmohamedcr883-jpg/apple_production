@@ -20,7 +20,7 @@ export enum PRODUCT_TYPE {
     sport = "sport",
     nationalitie = "nationalitie",
     cartoon = "cartoon",
-    marvel = "marvel",
+    superheros = "superheros",
     series = "series",
     music = "music",
     colledge = "colledge",

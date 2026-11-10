@@ -22,10 +22,7 @@ const SearchModal = () => {
       .slice(0, 8);
   }, [products, query]);
 
-  const openProduct = (event) => {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    const target = event.currentTarget.getAttribute('href');
+  const openSearchTarget = (target) => {
     const modal = document.getElementById('searchModal');
     const instance = window.bootstrap?.Modal.getInstance(modal);
     const open = () => {
@@ -45,6 +42,19 @@ const SearchModal = () => {
     }
   };
 
+  const openProduct = (event) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    openSearchTarget(event.currentTarget.getAttribute('href'));
+  };
+
+  const submitSearch = (event) => {
+    event.preventDefault();
+    const value = query.trim();
+    if (!value) return;
+    openSearchTarget(`/pages/category.html?search=${encodeURIComponent(value)}`);
+  };
+
   return (
     <div className="modal fade" id="searchModal" tabIndex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
       <div className="modal-dialog modal-dialog-centered">
@@ -55,7 +65,7 @@ const SearchModal = () => {
           <div className="modal-body">
             <h3 className="modal-title text-center mb-4" id="searchModalLabel">Search Products</h3>
             <div className="search-container">
-              <div className="input-group input-group-lg">
+              <form className="input-group input-group-lg" onSubmit={submitSearch}>
                 <input
                   type="text"
                   className="form-control search-input"
@@ -63,12 +73,15 @@ const SearchModal = () => {
                   placeholder="Search for stickers, products..."
                   value={query}
                   onChange={e => setQuery(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) submitSearch(e);
+                  }}
                   autoFocus
                 />
-                <button className="btn btn-primary" type="button" id="searchButton">
+                <button className="btn btn-primary" type="submit" id="searchButton" aria-label="Search">
                   <i className="fa-solid fa-magnifying-glass"></i>
                 </button>
-              </div>
+              </form>
               <div id="searchResults" className="search-results mt-4">
                 {query.trim() && results.length === 0 && (
                   <div className="text-center text-muted py-3">No products found.</div>

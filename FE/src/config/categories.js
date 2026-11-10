@@ -18,7 +18,7 @@ export const PRODUCT_TYPES = [
   { value: 'sport', label: 'Sport' },
   { value: 'nationalitie', label: 'Nationality' },
   { value: 'cartoon', label: 'Cartoon' },
-  { value: 'marvel', label: 'Marvel' },
+  { value: 'superheros', label: 'Superheros' },
   { value: 'series', label: 'Series' },
   { value: 'music', label: 'Music' },
   { value: 'colledge', label: 'College' },

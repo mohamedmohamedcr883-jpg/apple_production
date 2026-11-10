@@ -14,6 +14,7 @@ const Category = () => {
   const { products, addToCart } = useAppContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const catParam = searchParams.get('cat');
+  const searchQuery = (searchParams.get('search') || '').trim();
 
   const typeFilter = searchParams.get('type') || 'all';
   const [sortFilter, setSortFilter] = useState('default');
@@ -25,7 +26,7 @@ const productId = searchParams.get('productId');
   useEffect(() => {
     setCurrentPage(1);
     setSelectedProduct(null);
-  }, [catParam, typeFilter]);
+  }, [catParam, typeFilter, searchQuery]);
 useEffect(() => {
   if (!productId) return;
 
@@ -77,6 +78,16 @@ useEffect(() => {
 
   if (typeFilter !== 'all') {
     filteredProducts = filteredProducts.filter(p => p.type?.toLowerCase() === typeFilter.toLowerCase());
+  }
+
+  if (searchQuery) {
+    const value = searchQuery.toLowerCase();
+    filteredProducts = filteredProducts.filter(product => [
+      product.name,
+      getCategoryLabel(product.category),
+      product.type,
+      product.description
+    ].some(field => String(field || '').toLowerCase().includes(value)));
   }
 
   if (sortFilter === 'price-low') {
@@ -216,6 +227,7 @@ useEffect(() => {
                   <h2 className="section-title mb-0">
                     <span id="categoryTitle">{getCategoryTitle()}</span>
                   </h2>
+                  {searchQuery && <p className="text-muted mt-2 mb-0">Search results for “{searchQuery}”</p>}
                 </div>
                 <div className="col-lg-8">
                   <div className="row g-3 mt-1 mt-lg-0 catalog-filters">
