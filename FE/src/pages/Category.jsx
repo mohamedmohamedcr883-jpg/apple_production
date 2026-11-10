@@ -212,7 +212,7 @@ useEffect(() => {
                 </div>
                 <div className="col-md-6">
                   <div className="d-flex gap-3 justify-content-md-end mt-3 mt-md-0 flex-wrap">
-                    <select className="form-select filter-select" id="typeFilter" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+                    <select className="form-select filter-select" id="typeFilter" value={typeFilter} onChange={e => { setTypeFilter(e.target.value); setCurrentPage(1); }}>
                       <option value="all">All Types</option>
                       {PRODUCT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                     </select>
