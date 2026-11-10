@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { getItemPrice, getProductDiscount } from '../utils/pricing';
 import { OfferBadge, ProductPrice } from '../components/ProductOffer';
-import { getCategoryLabel, PRODUCT_TYPES } from '../config/categories';
+import { getCategoryLabel, getProductTypeLabel, PRODUCT_TYPES } from '../config/categories';
 
 // Components
 import SearchModal from '../components/SearchModal';
@@ -60,7 +60,13 @@ useEffect(() => {
   const closeDetail = () => {
     setSelectedProduct(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    window.history.pushState({ page: 'list', pageNum: currentPage }, "", window.location.pathname + window.location.search);
+    if (productId) {
+      const params = new URLSearchParams(searchParams);
+      params.delete('productId');
+      setSearchParams(params);
+    } else {
+      window.history.pushState({ page: 'list', pageNum: currentPage }, "", window.location.pathname + window.location.search);
+    }
   };
 
   let filteredProducts = products.slice();
@@ -225,7 +231,7 @@ useEffect(() => {
                       }}>
                         <option value="all">All Types</option>
                         {typeFilter !== 'all' && !PRODUCT_TYPES.some(t => t.value === typeFilter) && (
-                          <option value={typeFilter}>{typeFilter}</option>
+                          <option value={typeFilter}>{getProductTypeLabel(typeFilter)}</option>
                         )}
                         {PRODUCT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                       </select>

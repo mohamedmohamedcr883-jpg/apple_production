@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { getCategoryLabel } from '../config/categories';
 
 const SearchModal = () => {
   const { products } = useAppContext();
   const [query, setQuery] = useState('');
+  const navigate = useNavigate();
 
   const results = useMemo(() => {
     const value = query.trim().toLowerCase();
@@ -21,12 +22,27 @@ const SearchModal = () => {
       .slice(0, 8);
   }, [products, query]);
 
-  const closeModal = () => {
+  const openProduct = (event) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const target = event.currentTarget.getAttribute('href');
     const modal = document.getElementById('searchModal');
-    if (modal && window.bootstrap) {
-      window.bootstrap.Modal.getInstance(modal)?.hide();
+    const instance = window.bootstrap?.Modal.getInstance(modal);
+    const open = () => {
+      setQuery('');
+      navigate(target);
+    };
+    if (instance) {
+      const hide = () => instance.hide();
+      modal.addEventListener('shown.bs.modal', hide, { once: true });
+      modal.addEventListener('hidden.bs.modal', () => {
+        modal.removeEventListener('shown.bs.modal', hide);
+        open();
+      }, { once: true });
+      hide();
+    } else {
+      open();
     }
-    setQuery('');
   };
 
   return (
@@ -60,8 +76,8 @@ const SearchModal = () => {
                 {results.map(product => (
                   <Link
                     key={product.id || product._id}
-                    to={`/pages/category.html?cat=${encodeURIComponent(product.category || '')}`}
-                    onClick={closeModal}
+                    to={`/pages/category.html?cat=${encodeURIComponent(product.category || '')}&productId=${encodeURIComponent(product.id || product._id)}`}
+                    onClick={openProduct}
                     className="d-flex align-items-center gap-3 text-decoration-none"
                   >
                     <img src={product.image} alt={product.name} style={{ width: '48px', height: '48px', objectFit: 'contain', borderRadius: '8px' }} />

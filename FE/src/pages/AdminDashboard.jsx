@@ -139,14 +139,15 @@ const AdminDashboard = () => {
 
   const submitProduct = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
     formData.set('name', formData.get('name')?.trim() || '');
     formData.set('description', formData.get('description')?.trim() || '');
 
     const res = await createProduct(formData);
     if (res?.success) {
       triggerToast('Product added successfully');
-      e.currentTarget.reset();
+      form.reset();
       setShowAddProduct(false);
       loadProducts();
     } else {
@@ -189,8 +190,8 @@ const AdminDashboard = () => {
     if (res?.success) {
       triggerToast('Updated successfully');
       loadProducts();
+      setShowEditModal(false);
     } else triggerToast(res?.message || 'Failed', 'error');
-    setShowEditModal(false);
   };
 
   // --- Offers ---

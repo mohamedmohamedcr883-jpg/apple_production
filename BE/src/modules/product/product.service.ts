@@ -4,6 +4,7 @@ import { AddProductDTO } from "./product.dto";
 import cloudinary from "../../config/cloudinary";
 import { ProductFactory } from "./factory";
 import { OfferHelper } from "../admin/offer.helpers";
+import { PRODUCT_CATEGORY, PRODUCT_TYPE } from "../../utils/common/enum";
 
 export class ProductService {
     private productRepository = new ProductRepository();
@@ -23,6 +24,15 @@ export class ProductService {
         if (!photo) {
             res.status(400).json({ message: "photo is required", success: false });
             return;
+        }
+        if (typeof addProductDTO.name !== 'string' || !addProductDTO.name.trim()) {
+            return res.status(400).json({ success: false, message: "Product name is required" });
+        }
+        if (!Object.values(PRODUCT_CATEGORY).includes(addProductDTO.category as PRODUCT_CATEGORY) || !Object.values(PRODUCT_TYPE).includes(addProductDTO.type as PRODUCT_TYPE)) {
+            return res.status(400).json({ success: false, message: "Invalid category or type" });
+        }
+        if (await this.productRepository.findDuplicate(addProductDTO.name, addProductDTO.category, addProductDTO.type)) {
+            return res.status(409).json({ success: false, message: "A product with this name, category, and type already exists" });
         }
         const { secure_url, public_id } = await cloudinary.uploader.upload(photo.path, {
             folder: `apple-store/${addProductDTO.category}/${addProductDTO.type}`

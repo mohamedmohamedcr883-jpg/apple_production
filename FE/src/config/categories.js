@@ -26,9 +26,13 @@ export const PRODUCT_TYPES = [
   { value: 'cute', label: 'Cute' },
   { value: 'memes', label: 'Memes' },
   { value: 'coat', label: 'Coat' },
+  { value: 'speech', label: 'Speech' },
 ];
 
 const HIDDEN_CATEGORY_LABELS = { 'laptop stickers': 'Laptop Stickers' };
 
 export const getCategoryLabel = (cat) =>
   MAIN_CATEGORIES.find(c => c.cat === cat)?.label || HIDDEN_CATEGORY_LABELS[cat] || cat;
+
+export const getProductTypeLabel = (type) =>
+  PRODUCT_TYPES.find(t => t.value === type)?.label || type;

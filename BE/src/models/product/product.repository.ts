@@ -13,6 +13,17 @@ export class ProductRepository extends AbstractRepository<IProduct> {
     async findById(id: string) {
         return this.model.findById(id).exec();
     }
+    async findDuplicate(name: string, category: string, type: string, excludeId?: string) {
+        const escapedName = name.trim().split(/\s+/)
+            .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('\\s+');
+        return this.model.findOne({
+            name: new RegExp(`^\\s*${escapedName}\\s*$`, 'i'),
+            category,
+            type,
+            ...(excludeId ? { _id: { $ne: excludeId } } : {}),
+        }).select('_id').exec();
+    }
     async update(
         id: string,
         updateData: UpdateQuery<IProduct>,

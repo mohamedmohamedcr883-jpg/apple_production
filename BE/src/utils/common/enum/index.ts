@@ -27,7 +27,8 @@ export enum PRODUCT_TYPE {
     anime = "anime",
     cute = "cute",
     memes = "memes",
-    coat="coat"
+    coat="coat",
+    speech = "speech"
 }
 export enum PAYMENT_METHID {
     cash = "cash"

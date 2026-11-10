@@ -49,8 +49,14 @@ class AdminService {
             const { name, price, stock, category, type, description } = req.body;
             const photo = req.file;
 
-            if (!name || price === undefined || !category || !type || !photo) {
+            if (typeof name !== 'string' || !name.trim() || price === undefined || !category || !type || !photo) {
                 return res.status(400).json({ success: false, message: "Name, price, category, type, and image are required" });
+            }
+            if (!Object.values(PRODUCT_CATEGORY).includes(category) || !Object.values(PRODUCT_TYPE).includes(type)) {
+                return res.status(400).json({ success: false, message: "Invalid category or type" });
+            }
+            if (await this.productRepository.findDuplicate(name, category, type)) {
+                return res.status(409).json({ success: false, message: "A product with this name, category, and type already exists" });
             }
 
             const originalPrice = Number(price);
@@ -95,6 +101,12 @@ class AdminService {
             }
             if (type !== undefined && type !== product.type && !Object.values(PRODUCT_TYPE).includes(type)) {
                 return res.status(400).json({ success: false, message: "Invalid type" });
+            }
+            if (name !== undefined && (typeof name !== 'string' || !name.trim())) {
+                return res.status(400).json({ success: false, message: "Product name is required" });
+            }
+            if (await this.productRepository.findDuplicate(name ?? product.name, category ?? product.category, type ?? product.type, id)) {
+                return res.status(409).json({ success: false, message: "A product with this name, category, and type already exists" });
             }
 
             const updateData: any = {};

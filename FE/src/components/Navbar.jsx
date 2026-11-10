@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { MAIN_CATEGORIES, PRODUCT_TYPES } from '../config/categories';
+import { MAIN_CATEGORIES, getProductTypeLabel } from '../config/categories';
 import logoImg from '../assets/logo.jpg';
 
 const Navbar = () => {
@@ -112,7 +112,7 @@ const Navbar = () => {
                       {types.map(type => (
                         <li key={type}>
                           <Link to={`${c.to}&type=${encodeURIComponent(type)}`} onClick={handleNavClick}>
-                            {PRODUCT_TYPES.find(t => t.value === type)?.label || type}
+                            {getProductTypeLabel(type)}
                           </Link>
                         </li>
                       ))}
