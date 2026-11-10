@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { getItemPrice } from '../utils/pricing';
+import { getItemPrice, getProductDiscount } from '../utils/pricing';
+import { OfferBadge, ProductPrice } from '../components/ProductOffer';
 import { Link } from 'react-router-dom';
 import { MAIN_CATEGORIES } from '../config/categories';
 import copilotImg from '../assets/Copilot_20260122_175027.png';
@@ -13,9 +14,11 @@ import CartModal from '../components/CartModal';
 const Home = () => {
   const { products, addToCart } = useAppContext();
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [detailSize, setDetailSize] = useState('Medium');
   
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
+    setDetailSize('Medium');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     window.history.pushState({ page: 'detail', id: product.id }, "", `#product-${product.id}`);
   };
@@ -64,20 +67,19 @@ const Home = () => {
               </div>
               <div className="col-12 col-md-6 col-lg-5">
                   <div className="product-info-sticky text-center text-md-start">
-                      <h1 className="fw-bold h3 h2-md mb-2">{selectedProduct.name}</h1>
+                      <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
+                          <h1 className="fw-bold h3 h2-md mb-0">{selectedProduct.name}</h1>
+                          <OfferBadge product={selectedProduct} size={showSizeOption ? detailSize : undefined} />
+                      </div>
                       <div className="d-flex align-items-center justify-content-center justify-content-md-start gap-3 mb-4">
-                          <span className="fs-4 fw-bold text-dark" id="detailPrice">LE {selectedProduct.price.toFixed(2)}</span>
+                          <ProductPrice product={selectedProduct} size={showSizeOption ? detailSize : undefined} className="fs-4 fw-bold text-dark" id="detailPrice" />
                           <span className="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 small">In Stock</span>
                       </div>
                       
                       {showSizeOption && (
                         <div className="my-4">
                             <label className="form-label small fw-bold text-uppercase text-muted mb-2 d-block text-center text-md-start">Size</label>
-                            <select className="form-select rounded-pill mx-auto mx-md-0" style={{width: '200px'}} id="detailSize" defaultValue="Medium" onChange={(e)=>{
-                              const val = e.target.value;
-                              const p = document.getElementById('detailPrice');
-                              if(p) p.innerText = `LE ${getItemPrice(selectedProduct, val).toFixed(2)}`;
-                            }}>
+                            <select className="form-select rounded-pill mx-auto mx-md-0" style={{width: '200px'}} id="detailSize" value={detailSize} onChange={(e) => setDetailSize(e.target.value)}>
                                 <option value="Small">Small (5cm*5cm)</option>
                                 <option value="Medium">Medium (10cm*10cm)</option>
                             </select>
@@ -121,13 +123,14 @@ const Home = () => {
             <div className="row g-4 justify-content-center justify-content-md-center">
               {relatedProducts.map(p => (
                 <div key={p.id} className="col-10 col-sm-6 col-md-4 col-lg-3">
-                  <div className="card h-100 cursor-pointer related-product border-0 shadow-sm hover-scale" 
+                  <div className={`card h-100 cursor-pointer related-product border-0 shadow-sm hover-scale position-relative${getProductDiscount(p) ? ' offer-card' : ''}`}
                        onClick={() => handleProductSelect(p)}
                        style={{transition: 'transform 0.2s'}}>
+                    <OfferBadge product={p} />
                     <img src={p.image} className="card-img-top p-3" alt={p.name} style={{height:'180px', objectFit:'contain'}} />
                     <div className="card-body text-center p-2">
                       <h6 className="card-title mb-1">{p.name}</h6>
-                      <p className="mb-0 fw-bold">LE {p.price.toFixed(2)}</p>
+                      <p className="mb-0 fw-bold"><ProductPrice product={p} /></p>
                     </div>
                   </div>
                 </div>
@@ -172,8 +175,9 @@ const Home = () => {
               <div className="row g-4" id="bestSellerContainer">
                 {bestSellers.map(p => (
                   <div key={p.id} className="col-6 col-md-3 mb-4">
-                      <div className="card h-100 border-0 shadow-sm product-card-hover">
+                      <div className={`card h-100 border-0 shadow-sm product-card-hover${getProductDiscount(p) ? ' offer-card' : ''}`}>
                           <div className="position-relative overflow-hidden rounded-top" onClick={() => handleProductSelect(p)} style={{cursor:'pointer'}}>
+                              <OfferBadge product={p} />
                               <div className="img-wrapper">
                                   <img src={p.image} className="card-img-top p-3" alt={p.name} loading="lazy" />
                               </div>
@@ -189,7 +193,7 @@ const Home = () => {
                                       <span className="text-muted small d-block mb-0" style={{fontSize: '0.75rem', letterSpacing: '0.5px', textTransform: 'uppercase'}}>
                                           Starts from
                                       </span>
-                                      <span className="fs-5 fw-bold text-success price-green">LE {p.price.toFixed(2)}</span>
+                                      <ProductPrice product={p} className="fs-5 fw-bold text-success price-green" />
                                   </div>
                                   
                                   {(p.stock != null && p.stock <= 0) ? (

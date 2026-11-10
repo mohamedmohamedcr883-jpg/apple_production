@@ -1020,3 +1020,57 @@
     html {
         overflow-x: hidden;
     }
+
+.offer-card {
+    position: relative;
+    outline: 2px solid #dc3545;
+    outline-offset: -2px;
+    animation: offer-glow 2.4s ease-in-out 3;
+}
+
+.product-offer-badge {
+    display: inline-block;
+    max-width: calc(100% - 16px);
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #dc3545;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.offer-card .product-offer-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.18);
+}
+
+.product-price-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: inherit;
+    gap: 4px 8px;
+}
+
+.product-original-price {
+    color: #6c757d;
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+.product-offer-price {
+    color: #dc3545 !important;
+}
+
+@keyframes offer-glow {
+    0%, 100% { outline-color: #dc3545; outline-offset: -2px; }
+    50% { outline-color: #f17b86; outline-offset: 1px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .offer-card { animation: none; }
+}

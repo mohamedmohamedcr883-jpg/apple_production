@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { getItemPrice } from '../utils/pricing';
 import { getCategoryLabel } from '../config/categories';
+import { OfferBadge, ProductPrice } from './ProductOffer';
 
 const ProductOptionsModal = () => {
   const { addToCart } = useAppContext();
@@ -56,8 +57,9 @@ const ProductOptionsModal = () => {
                 <h3 id="productOptionsModalLabel">{product.name}</h3>
                 <p className="text-muted" id="productOptionsCategory">{getCategoryLabel(product.category)}</p>
                 <p className="text-muted" id="plusOption">(For special size contact us)</p>
-                <div className="mb-4">
-                  <span id="productOptionsPrice" className="fs-4">LE {price.toFixed(2)}</span>
+                <div className="mb-4 d-flex flex-wrap align-items-center gap-2">
+                  <ProductPrice product={product} size={size} id="productOptionsPrice" className="fs-4" />
+                  <OfferBadge product={product} size={size} />
                 </div>
 
                 <form id="productOptionsForm" onSubmit={handleSubmit}>
