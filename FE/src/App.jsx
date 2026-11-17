@@ -7,10 +7,12 @@ import Checkout from "./pages/Checkout";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import ComingSoon from "./pages/ComingSoon";
+import RefundPolicy from "./pages/RefundPolicy";
 
 // Components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import AnnouncementBar from "./components/AnnouncementBar";
 
 function App() {
   const { pathname } = useLocation();
@@ -25,10 +27,12 @@ function App() {
   return (
     <>
       {!isAdminRoute && <Navbar />}
+      {!isAdminRoute && <AnnouncementBar />}
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/pages/category.html" element={<Category />} />
+        <Route path="/pages/refund.html" element={<RefundPolicy />} />
         <Route path="/pages/offers.html" element={<ComingSoon title="Offers" text="Special discounts on stickers, mugs and more are on the way." />} />
         <Route path="/pages/packages.html" element={<ComingSoon title="Packages" text="Bundles that combine your favourite products at a better price are on the way." />} />
         <Route path="/pages/checkOut.html" element={<Checkout />} />

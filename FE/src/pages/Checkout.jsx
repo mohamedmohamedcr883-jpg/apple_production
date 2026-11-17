@@ -4,12 +4,35 @@
   import { API_BASE } from '../config/api';
 
   const shippingByGovernorate = {
-    Cairo: 5, Giza: 6, Alexandria: 7, Qalyubia: 6, Sharqia: 7, Dakahlia: 7,
-    Beheira: 7, Monufia: 6, Gharbia: 6, "Kafr El Sheikh": 7, Damietta: 7, "Port Said": 8,
-    Ismailia: 8, Suez: 8, "North Sinai": 10, "South Sinai": 10, "Red Sea": 10,
-    Faiyum: 7, "Beni Suef": 8, Minya: 8, Assiut: 9, Sohag: 9, Qena: 9, Luxor: 9,
-    Aswan: 10, "New Valley": 10, Matrouh: 10
+    Cairo: 80,
+    "Cairo suburbs": 100,
+    Giza: 80,
+    "Giza suburbs": 100,
+    Qalyubia: 80,
+    Alexandria: 100,
+    Beheira: 100,
+    "Marsa Matrouh": 140,
+    Dakahlia: 100,
+    "Kafr El Sheikh": 100,
+    Gharbia: 100,
+    Menoufia: 100,
+    Damietta: 100,
+    "Port Said": 100,
+    Ismailia: 100,
+    Suez: 100,
+    Sharqia: 100,
+    "Red Sea": 160,
+    Fayoum: 100,
+    "Beni Suef": 100,
+    Minya: 130,
+    Assiut: 140,
+    "New Valley": 160,
+    Qena: 140,
+    Sohag: 140,
+    Aswan: 140,
+    Luxor: 140
   };
+  const CASH_ON_DELIVERY_FEE = 2;
 
   const Checkout = () => {
     const { cart, clearCart } = useAppContext();
@@ -22,8 +45,8 @@
     const [isProcessing, setIsProcessing] = useState(false);
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const shippingCost = (form.city ? (shippingByGovernorate[form.city] || 0) : 0) + 2;
-    const total = subtotal + shippingCost;
+    const shippingCost = form.city ? (shippingByGovernorate[form.city] || 0) : 0;
+    const total = subtotal + shippingCost + CASH_ON_DELIVERY_FEE;
 
     const handlePlaceOrder = async () => {
       if (cart.length === 0 || isProcessing) return;
@@ -142,7 +165,7 @@
                     </div>
 
                     <div className="col-12">
-                      <label className="form-label">City</label>
+                      <label className="form-label" htmlFor="city">City</label>
                       <select className="form-control" id="city" value={form.city} onChange={e=>setForm({...form, city: e.target.value})}>
                         <option value="" disabled>Choose Governorate</option>
                         {Object.keys(shippingByGovernorate).map(gov => (
@@ -206,11 +229,11 @@
                         <div className="border rounded bg-light d-flex align-items-center justify-content-center flex-shrink-0" style={{width:'50px', height:'50px'}}>
                           <img src={item.image} alt={item.name} style={{width:'100%', height:'100%', objectFit:'contain'}} />
                         </div>
-                        <div className="flex-grow-1 min-w-0">
-                          <h6 className="mb-0 text-truncate">{item.name}</h6>
+                        <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                          <h6 className="mb-0 text-truncate" title={item.name}>{item.name}</h6>
                           <small className="text-secondary-emphasis d-block">{item.price} LE x {item.quantity}{item.size ? ` (${item.size})` : ''}</small>
                         </div>
-                        <div className="fw-bold">
+                        <div className="fw-bold flex-shrink-0 text-nowrap">
                           {(item.price * item.quantity).toFixed(2)} LE
                         </div>
                       </div>
@@ -227,6 +250,11 @@
                   <div className="d-flex justify-content-between mt-2">
                     <span>Shipping</span>
                     <strong id="shipping">{shippingCost > 0 ? `${shippingCost} LE` : 'Calculated at checkout'}</strong>
+                  </div>
+
+                  <div className="d-flex justify-content-between mt-2">
+                    <span>Cash on delivery</span>
+                    <strong id="cashOnDeliveryFee">{CASH_ON_DELIVERY_FEE} LE</strong>
                   </div>
 
                   <hr className="my-4" />

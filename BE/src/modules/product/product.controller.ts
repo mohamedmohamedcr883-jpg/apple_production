@@ -5,6 +5,7 @@ import { upload } from '../../config/multer';
 const router = Router();
 router.post("/add-product",upload.single("photo"),productService.addProduct);
 router.get("/get-all-products",productService.getAllProducts);
+router.get("/active-offers", productService.getActiveOffers);
 // router.get("/get-product:id",productService.getProduct);
 
 export default router;

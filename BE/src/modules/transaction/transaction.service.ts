@@ -8,11 +8,33 @@ import { sendEmail } from "../../utils/email";
 import { sendTelegramMessage } from "../../utils/telegram";
 
 const SHIPPING_BY_GOVERNORATE: Record<string, number> = {
-    Cairo: 5, Giza: 6, Alexandria: 7, Qalyubia: 6, Sharqia: 7, Dakahlia: 7,
-    Beheira: 7, Monufia: 6, Gharbia: 6, "Kafr El Sheikh": 7, Damietta: 7, "Port Said": 8,
-    Ismailia: 8, Suez: 8, "North Sinai": 10, "South Sinai": 10, "Red Sea": 10,
-    Faiyum: 7, "Beni Suef": 8, Minya: 8, Assiut: 9, Sohag: 9, Qena: 9, Luxor: 9,
-    Aswan: 10, "New Valley": 10, Matrouh: 10,
+    Cairo: 80,
+    "Cairo suburbs": 100,
+    Giza: 80,
+    "Giza suburbs": 100,
+    Qalyubia: 80,
+    Alexandria: 100,
+    Beheira: 100,
+    "Marsa Matrouh": 140,
+    Dakahlia: 100,
+    "Kafr El Sheikh": 100,
+    Gharbia: 100,
+    Menoufia: 100,
+    Damietta: 100,
+    "Port Said": 100,
+    Ismailia: 100,
+    Suez: 100,
+    Sharqia: 100,
+    "Red Sea": 160,
+    Fayoum: 100,
+    "Beni Suef": 100,
+    Minya: 130,
+    Assiut: 140,
+    "New Valley": 160,
+    Qena: 140,
+    Sohag: 140,
+    Aswan: 140,
+    Luxor: 140,
 };
 const CASH_ON_DELIVERY_FEE = 2;
 const MIN_ORDER_SUBTOTAL = 50;
@@ -80,7 +102,9 @@ class TransactionService {
             }
 
             // ---------- VERIFY TOTAL ----------
-            const shipping = SHIPPING_BY_GOVERNORATE[newTransaction.city as string];
+            const shipping = Object.prototype.hasOwnProperty.call(SHIPPING_BY_GOVERNORATE, newTransaction.city)
+                ? SHIPPING_BY_GOVERNORATE[newTransaction.city]
+                : undefined;
 
             if (shipping === undefined) {
                 throw new BadRequestError("Please choose a valid governorate");

@@ -10,6 +10,16 @@ export class OfferRepository extends AbstractRepository<IOffer> {
     async getAllOffers(filter: Partial<IOffer>, projection: ProjectionType<IOffer>, options: QueryOptions<IOffer>) {
         return await Offer.find(filter, projection, options);
     }
+    async getActiveOffers() {
+        const now = new Date();
+        return Offer.find({
+            isActive: true,
+            startDate: { $lte: now },
+            expiryDate: { $gt: now },
+            discountValue: { $gt: 0 },
+        }).select('title category discountType discountValue startDate expiryDate')
+            .sort({ createdAt: -1, _id: -1 }).lean().exec();
+    }
     async findById(id: string) {
         return this.model.findById(id).exec();
     }

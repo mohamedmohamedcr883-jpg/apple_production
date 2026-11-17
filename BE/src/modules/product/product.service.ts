@@ -5,8 +5,10 @@ import cloudinary from "../../config/cloudinary";
 import { ProductFactory } from "./factory";
 import { OfferHelper } from "../admin/offer.helpers";
 import { PRODUCT_CATEGORY, PRODUCT_TYPE } from "../../utils/common/enum";
+import { OfferRepository } from "../../models/offer/offer.repository";
 
 export class ProductService {
+    private offerRepository = new OfferRepository();
     private productRepository = new ProductRepository();
     private productFactory = new ProductFactory();
     constructor() { }
@@ -17,6 +19,17 @@ export class ProductService {
             ...p.toObject()
         }));
         res.json({ message: "done successfully", data: products, success: true });
+    }
+    public getActiveOffers = async (req: Request, res: Response) => {
+        const offers = await this.offerRepository.getActiveOffers();
+        const categories = new Set<string>();
+        const latestOffers = offers.filter(offer => {
+            if (categories.has(offer.category)) return false;
+            categories.add(offer.category);
+            return true;
+        });
+        res.set('Cache-Control', 'no-store');
+        res.json({ success: true, data: latestOffers });
     }
     public addProduct = async (req: Request, res: Response) => {
         const addProductDTO: AddProductDTO = req.body;

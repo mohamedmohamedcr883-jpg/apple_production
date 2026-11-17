@@ -35,8 +35,9 @@ const Footer = () => {
       </div>
 
       {/* Footer bottom */}
-      <div className="text-center text-muted mt-2" style={{ fontSize: '0.8rem' }}>
-        &copy; 2026 Apple Store. All rights reserved. | <Link to="/pages/admin-login.html" style={{ color: '#76b852', textDecoration: 'none' }}>Admin Login</Link>
+      <div className="text-center text-muted mt-2 px-3" style={{ fontSize: '0.8rem' }}>
+        <Link to="/pages/refund.html" className="text-success">Refund &amp; Exchange Policy</Link>
+        <div className="mt-2">&copy; 2026 Apple Store. All rights reserved. | <Link to="/pages/admin-login.html" style={{ color: '#76b852', textDecoration: 'none' }}>Admin Login</Link></div>
       </div>
     </footer>
   );
