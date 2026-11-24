@@ -185,29 +185,9 @@
                     </div>
                   </div>
 
-                  <hr className="my-4" />
-
-                  {/* PAYMENT METHOD */}
-                  <h2 className="h5 fw-semibold mb-3">Payment Method</h2>
-
-                  <div className="payment-option form-check mb-2">
-                    <input className="form-check-input" type="radio" name="payment" id="pmCod" value="cod" checked readOnly />
-                    <label className="form-check-label w-100" htmlFor="pmCod">
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div className="d-flex align-items-center gap-2">
-                          <i className="bi bi-truck"></i>
-                          <span className="fw-semibold">Cash on Delivery</span>
-                        </div>
-                      </div>
-                      <div className="text-secondary-emphasis small mt-1">
-                        Pay in cash when the order arrives.
-                        <span className="text-danger ms-1">(+2 LE Extra)</span>
-                      </div>
-                    </label>
-                  </div>
-
                   <div className="mt-4">
                     <div className="alert alert-warning mb-0" id="codNote">
+                      <strong>Cash on Delivery</strong><br />
                       Please prepare the full amount on delivery.
                       You can inspect the package before paying.
                     </div>
@@ -231,7 +211,9 @@
                         </div>
                         <div className="flex-grow-1" style={{ minWidth: 0 }}>
                           <h6 className="mb-0 text-truncate" title={item.name}>{item.name}</h6>
-                          <small className="text-secondary-emphasis d-block">{item.price} LE x {item.quantity}{item.size ? ` (${item.size})` : ''}</small>
+                          <small className="text-secondary-emphasis d-block">
+                            {item.quantity} × {item.price.toFixed(2)} LE{item.size ? ` · Size: ${item.size}` : ''}
+                          </small>
                         </div>
                         <div className="fw-bold flex-shrink-0 text-nowrap">
                           {(item.price * item.quantity).toFixed(2)} LE
@@ -242,6 +224,18 @@
 
                   <hr className="my-4" />
 
+                  <section className="bg-white border rounded p-3 mb-4" aria-label="Delivery details">
+                    <h3 className="h6 fw-semibold mb-3">Delivery Details</h3>
+                    <div className="d-flex justify-content-between gap-3">
+                      <span className="text-secondary-emphasis">Governorate</span>
+                      <strong className="text-end">{form.city || 'Choose a governorate'}</strong>
+                    </div>
+                    <div className="d-flex justify-content-between gap-3 mt-2">
+                      <span className="text-secondary-emphasis">Shipping cost</span>
+                      <strong className="text-end">{form.city ? `${shippingCost.toFixed(2)} LE` : 'Choose a governorate'}</strong>
+                    </div>
+                  </section>
+
                   <div className="d-flex justify-content-between">
                     <span>Subtotal</span>
                     <strong id="subtotal">{subtotal.toFixed(2)} LE</strong>
@@ -249,12 +243,12 @@
 
                   <div className="d-flex justify-content-between mt-2">
                     <span>Shipping</span>
-                    <strong id="shipping">{shippingCost > 0 ? `${shippingCost} LE` : 'Calculated at checkout'}</strong>
+                    <strong id="shipping">{form.city ? `${shippingCost.toFixed(2)} LE` : 'Choose a governorate'}</strong>
                   </div>
 
                   <div className="d-flex justify-content-between mt-2">
-                    <span>Cash on delivery</span>
-                    <strong id="cashOnDeliveryFee">{CASH_ON_DELIVERY_FEE} LE</strong>
+                    <span>Cash on Delivery fee</span>
+                    <strong id="cashOnDeliveryFee">{CASH_ON_DELIVERY_FEE.toFixed(2)} LE</strong>
                   </div>
 
                   <hr className="my-4" />
