@@ -10,7 +10,7 @@ const syncCart = (items, products) => {
   items.forEach(item => {
     const product = products.find(p => p.id === item.productId);
     if (!product) return;
-    const size = normalizeSize(item.size);
+    const size = product.category === 'stickers' ? '' : normalizeSize(item.size);
     const existing = synced.find(i => i.productId === item.productId && i.size === size);
     if (existing) existing.quantity += item.quantity;
     else synced.push({ ...item, name: product.name, size, price: getItemPrice(product, size) });

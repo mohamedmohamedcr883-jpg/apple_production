@@ -6,6 +6,7 @@ import { ProductRepository } from "../../models/product/product.repository";
 import { devConfig } from "../../config/dev.env";
 import { sendEmail } from "../../utils/email";
 import { sendTelegramMessage } from "../../utils/telegram";
+import { OfferHelper } from "../admin/offer.helpers";
 
 const SHIPPING_BY_GOVERNORATE: Record<string, number> = {
     Cairo: 80,
@@ -47,7 +48,10 @@ interface OrderItem {
     unitPrice: number;
 }
 
-const getItemPrice = (_category: string, price: number, _size?: string) => price;
+const getItemPrice = async (category: string, price: number) =>
+    category === "stickers"
+        ? OfferHelper.calculatePriceWithActiveOffers(category, 25)
+        : price;
 
 const escapeHtml = (text: unknown) => String(text)
     .replace(/&/g, "&amp;")
@@ -95,7 +99,7 @@ class TransactionService {
                     name: product.name,
                     size: info.size,
                     quantity: info.quantity,
-                    unitPrice: getItemPrice(product.category, Number(product.price), info.size),
+                    unitPrice: await getItemPrice(product.category, Number(product.price)),
                 });
             }
 

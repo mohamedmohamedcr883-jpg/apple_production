@@ -3,6 +3,10 @@ import { OfferRepository } from "../../models/offer/offer.repository";
 import { IOffer } from "../../utils/common/interfaces";
 
 export class OfferHelper {
+    private static getBasePrice(category: string, product: any): number {
+        return category === "stickers" ? 25 : Number(product.originalPrice ?? product.price);
+    }
+
     public static calculateDiscountedPrice(originalPrice: number, discountType: string, discountValue: number): number {
         if (discountType === 'percentage') {
             const discountAmount = originalPrice * (discountValue / 100);
@@ -18,7 +22,7 @@ export class OfferHelper {
         const products = await productRepo.getAllProducts({ category } as any, {}, {});
 
         await Promise.all(products.map((product) => {
-            const originalPrice = (product as any).originalPrice ?? product.price;
+            const originalPrice = this.getBasePrice(category, product);
             const newPrice = this.calculateDiscountedPrice(originalPrice, offer.discountType, offer.discountValue);
             return productRepo.update(String(product._id), {
                 originalPrice: originalPrice,
@@ -45,7 +49,7 @@ export class OfferHelper {
             // Apply the latest valid active offer
             const latestOffer = activeOffers[0] as unknown as IOffer;
             await Promise.all(products.map((product) => {
-                const originalPrice = (product as any).originalPrice ?? product.price;
+                const originalPrice = this.getBasePrice(category, product);
                 const newPrice = this.calculateDiscountedPrice(originalPrice, latestOffer.discountType, latestOffer.discountValue);
                 return productRepo.update(String(product._id), {
                     originalPrice: originalPrice,
@@ -55,7 +59,7 @@ export class OfferHelper {
         } else {
             // Revert all products in this category to their original price
             await Promise.all(products.map((product) => {
-                const originalPrice = (product as any).originalPrice ?? product.price;
+                const originalPrice = this.getBasePrice(category, product);
                 return productRepo.update(String(product._id), {
                     price: originalPrice,
                     originalPrice: originalPrice

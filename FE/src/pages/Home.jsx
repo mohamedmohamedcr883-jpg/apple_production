@@ -8,17 +8,14 @@ import copilotImg from '../assets/Copilot_20260122_175027.png';
 
 // Components
 import SearchModal from '../components/SearchModal';
-import ProductOptionsModal from '../components/ProductOptionsModal';
 import CartModal from '../components/CartModal';
 
 const Home = () => {
   const { products, addToCart } = useAppContext();
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [detailSize, setDetailSize] = useState('Medium');
   
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
-    setDetailSize('Medium');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     window.history.pushState({ page: 'detail', id: product.id }, "", `#product-${product.id}`);
   };
@@ -51,7 +48,6 @@ const Home = () => {
     const relatedProducts = products
       .filter(p => p.category === selectedProduct.category && String(p.id) !== String(selectedProduct.id))
       .slice(0, 2);
-    const showSizeOption = selectedProduct.category === 'stickers';
 
     return (
       <div id="bestsellerDetailView" style={{ display: 'block' }}>
@@ -69,23 +65,14 @@ const Home = () => {
                   <div className="product-info-sticky text-center text-md-start">
                       <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
                           <h1 className="fw-bold h3 h2-md mb-0">{selectedProduct.name}</h1>
-                          <OfferBadge product={selectedProduct} size={showSizeOption ? detailSize : undefined} />
+                          <OfferBadge product={selectedProduct} />
                       </div>
                       <div className="d-flex align-items-center justify-content-center justify-content-md-start gap-3 mb-4">
-                          <ProductPrice product={selectedProduct} size={showSizeOption ? detailSize : undefined} className="fs-4 fw-bold text-dark" id="detailPrice" />
+                          <ProductPrice product={selectedProduct} className="fs-4 fw-bold text-dark" id="detailPrice" />
                           <span className="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 small">In Stock</span>
                       </div>
+                      {selectedProduct.category === 'stickers' && <p className="text-muted mb-4">Size: 7 × 7 cm</p>}
                       
-                      {showSizeOption && (
-                        <div className="my-4">
-                            <label className="form-label small fw-bold text-uppercase text-muted mb-2 d-block text-center text-md-start">Size</label>
-                            <select className="form-select rounded-pill mx-auto mx-md-0" style={{width: '200px'}} id="detailSize" value={detailSize} onChange={(e) => setDetailSize(e.target.value)}>
-                                <option value="Small">Small (5cm*5cm)</option>
-                                <option value="Medium">Medium (10cm*10cm)</option>
-                            </select>
-                        </div>
-                      )}
-
                       <div className="my-4">
                           <label className="form-label small fw-bold text-uppercase text-muted mb-2 d-block text-center text-md-start">Quantity</label>
                           <div className="input-group border rounded-pill overflow-hidden mx-auto mx-md-0" style={{width: '130px'}}>
@@ -103,13 +90,11 @@ const Home = () => {
                       <div className="d-grid gap-2 gap-md-3">
                           <button className="btn btn-dark btn-lg rounded-pill py-3 fw-bold shadow-sm" onClick={() => {
                             const qty = parseInt(document.getElementById('detailQty')?.value || 1);
-                            const size = showSizeOption ? (document.getElementById('detailSize')?.value || 'Medium') : '';
-                            addToCart({ ...selectedProduct, price: getItemPrice(selectedProduct, size) }, qty, size);
+                            addToCart({ ...selectedProduct, price: getItemPrice(selectedProduct) }, qty);
                           }}>Add to cart</button>
                           <button className="btn btn-outline-dark btn-lg rounded-pill py-3 fw-bold" onClick={() => {
                             const qty = parseInt(document.getElementById('detailQty')?.value || 1);
-                            const size = showSizeOption ? (document.getElementById('detailSize')?.value || 'Medium') : '';
-                            addToCart({ ...selectedProduct, price: getItemPrice(selectedProduct, size) }, qty, size);
+                            addToCart({ ...selectedProduct, price: getItemPrice(selectedProduct) }, qty);
                             window.location.href = '/pages/checkout.html';
                           }}>Buy it now</button>
                       </div>
@@ -198,13 +183,6 @@ const Home = () => {
                                   
                                   {(p.stock != null && p.stock <= 0) ? (
                                     <button className="btn btn-secondary btn-sm w-100 rounded-pill" disabled>Sold Out</button>
-                                  ) : p.category === 'stickers' ? (
-                                    <button className="btn btn-outline-success btn-sm w-100 rounded-pill open-product-options"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#productOptionsModal"
-                                            onClick={() => window.dispatchEvent(new CustomEvent('open-options', {detail: p}))}>
-                                        Choose options
-                                    </button>
                                   ) : (
                                     <button className="btn btn-success btn-sm w-100 rounded-pill btn-add-to-cart"
                                             onClick={() => addToCart(p, 1)}>
@@ -246,7 +224,6 @@ const Home = () => {
 
       {/* Modals and Toasts */}
       <SearchModal />
-      <ProductOptionsModal />
       <CartModal />
 
       {/* Toast Containers */}

@@ -7,7 +7,6 @@ import { getCategoryLabel, getProductTypeLabel, PRODUCT_TYPES } from '../config/
 
 // Components
 import SearchModal from '../components/SearchModal';
-import ProductOptionsModal from '../components/ProductOptionsModal';
 import CartModal from '../components/CartModal';
 
 const Category = () => {
@@ -21,7 +20,6 @@ const Category = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [detailSize, setDetailSize] = useState('Medium');
 const productId = searchParams.get('productId');
   useEffect(() => {
     setCurrentPage(1);
@@ -52,7 +50,6 @@ useEffect(() => {
 
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
-    setDetailSize('Medium');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     window.history.pushState({ page: 'list', pageNum: currentPage }, "", window.location.href);
     window.history.pushState({ page: 'detail', id: product.id }, "", `#product-${product.id}`);
@@ -126,7 +123,6 @@ useEffect(() => {
     };
 
     const relatedProducts = getRandomRelatedProducts();
-    const showSizeOption = selectedProduct.category === 'stickers';
 
     return (
       <div className="container my-4 my-md-5 animate__animated animate__fadeIn">
@@ -143,22 +139,13 @@ useEffect(() => {
             <div className="product-info-sticky text-center text-md-start">
               <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
                 <h1 className="fw-bold h3 h2-md mb-0">{selectedProduct.name}</h1>
-                <OfferBadge product={selectedProduct} size={showSizeOption ? detailSize : undefined} />
+                <OfferBadge product={selectedProduct} />
               </div>
               <div className="d-flex align-items-center justify-content-center justify-content-md-start gap-3 mb-4 flex-wrap">
-                <ProductPrice product={selectedProduct} size={showSizeOption ? detailSize : undefined} className="fs-4 fw-bold text-dark" id="detailPrice" />
+                <ProductPrice product={selectedProduct} className="fs-4 fw-bold text-dark" id="detailPrice" />
                 <span className="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 small">In Stock</span>
               </div>
-
-              {showSizeOption && (
-                <div className="my-4">
-                  <label className="form-label small fw-bold text-uppercase text-muted mb-2 d-block text-center text-md-start">Size</label>
-                  <select className="form-select rounded-pill mx-auto mx-md-0" style={{ width: '200px' }} id="detailSize" value={detailSize} onChange={(e) => setDetailSize(e.target.value)}>
-                    <option value="Small">Small (5cm*5cm)</option>
-                    <option value="Medium">Medium (10cm*10cm)</option>
-                  </select>
-                </div>
-              )}
+              {selectedProduct.category === 'stickers' && <p className="text-muted mb-4">Size: 7 × 7 cm</p>}
 
               <div className="my-4">
                 <label className="form-label small fw-bold text-uppercase text-muted mb-2 d-block text-center text-md-start">Quantity</label>
@@ -177,13 +164,11 @@ useEffect(() => {
               <div className="d-grid gap-2 gap-md-3">
                 <button className="btn btn-dark btn-lg rounded-pill py-3 fw-bold shadow-sm" onClick={() => {
                   const qty = parseInt(document.getElementById('detailQty')?.value || 1);
-                  const size = showSizeOption ? (document.getElementById('detailSize')?.value || 'Medium') : '';
-                  addToCart({ ...selectedProduct, price: getItemPrice(selectedProduct, size) }, qty, size);
+                  addToCart({ ...selectedProduct, price: getItemPrice(selectedProduct) }, qty);
                 }}>Add to cart</button>
                 <button className="btn btn-outline-dark btn-lg rounded-pill py-3 fw-bold" onClick={() => {
                   const qty = parseInt(document.getElementById('detailQty')?.value || 1);
-                  const size = showSizeOption ? (document.getElementById('detailSize')?.value || 'Medium') : '';
-                  addToCart({ ...selectedProduct, price: getItemPrice(selectedProduct, size) }, qty, size);
+                  addToCart({ ...selectedProduct, price: getItemPrice(selectedProduct) }, qty);
                   window.location.href = '/pages/checkout.html';
                 }}>Buy it now</button>
               </div>
@@ -294,13 +279,6 @@ useEffect(() => {
 
                             {(p.stock != null && p.stock <= 0) ? (
                               <button className="btn btn-secondary btn-sm w-100 rounded-pill" disabled>Sold Out</button>
-                            ) : p.category === 'stickers' ? (
-                              <button className="btn btn-outline-success btn-sm w-100 rounded-pill open-product-options"
-                                data-bs-toggle="modal"
-                                data-bs-target="#productOptionsModal"
-                                onClick={() => window.dispatchEvent(new CustomEvent('open-options', { detail: p }))}>
-                                Choose options
-                              </button>
                             ) : (
                               <button className="btn btn-success btn-sm w-100 rounded-pill btn-add-to-cart"
                                 onClick={() => addToCart(p, 1)}>
@@ -344,7 +322,6 @@ useEffect(() => {
       )}
 
       {/* Modals */}
-      <ProductOptionsModal />
       <SearchModal />
       <CartModal />
 

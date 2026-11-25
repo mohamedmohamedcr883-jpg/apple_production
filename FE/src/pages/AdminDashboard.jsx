@@ -177,7 +177,7 @@ const AdminDashboard = () => {
   };
   const confirmEdit = async () => {
     const formData = new FormData();
-    const price = Number(editTarget.price);
+    const price = editTarget.category === 'stickers' ? 25 : Number(editTarget.price);
     formData.set('name', editTarget.name);
     formData.set('category', editTarget.category);
     formData.set('type', editTarget.type);
@@ -256,7 +256,7 @@ const AdminDashboard = () => {
             </div>
             <div className="form-group" style={{ marginTop: '12px' }}>
               <label htmlFor="editPrice">Original Price (LE)</label>
-              <input type="number" id="editPrice" min="0" step="0.01" value={editTarget.price} onChange={e => setEditTarget({ ...editTarget, price: e.target.value })} />
+              <input type="number" id="editPrice" min="0" step="0.01" value={editTarget.category === 'stickers' ? 25 : editTarget.price} onChange={e => setEditTarget({ ...editTarget, price: e.target.value })} readOnly={editTarget.category === 'stickers'} style={editTarget.category === 'stickers' ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : {}} />
             </div>
             <div className="form-group" style={{ marginTop: '12px' }}>
               <label htmlFor="editStock">Stock</label>
@@ -384,7 +384,13 @@ const AdminDashboard = () => {
                       <div className="form-group"><label>Stock</label><input type="number" name="stock" placeholder="0" className="form-control" /></div>
                       <div className="form-group">
                         <label>Category</label>
-                        <select name="category" required className="form-control">
+                        <select name="category" required className="form-control" onChange={(e) => {
+                          const priceInput = e.currentTarget.form.elements.price;
+                          const isSingleSticker = e.target.value === 'stickers';
+                          priceInput.value = isSingleSticker ? '25' : priceInput.value;
+                          priceInput.readOnly = isSingleSticker;
+                          priceInput.style.backgroundColor = isSingleSticker ? '#e9ecef' : '';
+                        }}>
                           <option value="">Select category...</option>
                           <option value="stickers">Sticker Single</option>
                           <option value="sticker sheets">Sticker Sheet</option>

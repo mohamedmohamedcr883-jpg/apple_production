@@ -14,9 +14,13 @@ export class ProductService {
     constructor() { }
     public getAllProducts = async (req: Request, res: Response) => {
         const dbProducts = await this.productRepository.getAllProducts({}, {}, {});
-        const products = dbProducts.map(p => ({
-            id: p._id,
-            ...p.toObject()
+        const products = await Promise.all(dbProducts.map(async p => {
+            const product = p.toObject() as any;
+            if (product.category === PRODUCT_CATEGORY.sticker) {
+                product.originalPrice = 25;
+                product.price = await OfferHelper.calculatePriceWithActiveOffers(product.category, 25);
+            }
+            return { id: p._id, ...product };
         }));
         res.json({ message: "done successfully", data: products, success: true });
     }
@@ -46,6 +50,10 @@ export class ProductService {
         }
         if (await this.productRepository.findDuplicate(addProductDTO.name, addProductDTO.category, addProductDTO.type)) {
             return res.status(409).json({ success: false, message: "A product with this name, category, and type already exists" });
+        }
+        if (addProductDTO.category === PRODUCT_CATEGORY.sticker) {
+            addProductDTO.price = 25 as any;
+            addProductDTO.originalPrice = 25 as any;
         }
         const { secure_url, public_id } = await cloudinary.uploader.upload(photo.path, {
             folder: `apple-store/${addProductDTO.category}/${addProductDTO.type}`

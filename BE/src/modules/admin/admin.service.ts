@@ -8,6 +8,8 @@ import { OfferHelper } from "./offer.helpers";
 import cloudinary from "../../config/cloudinary";
 import { PRODUCT_CATEGORY, PRODUCT_TYPE } from "../../utils/common/enum";
 
+const SINGLE_STICKER_PRICE = 25;
+
 class AdminService {
     private productRepository = new ProductRepository();
     private transactionRepository = new TransactionRepository();
@@ -59,7 +61,7 @@ class AdminService {
                 return res.status(409).json({ success: false, message: "A product with this name, category, and type already exists" });
             }
 
-            const originalPrice = Number(price);
+            const originalPrice = category === PRODUCT_CATEGORY.sticker ? SINGLE_STICKER_PRICE : Number(price);
             const { secure_url } = await cloudinary.uploader.upload(photo.path, {
                 folder: `apple-store/${category}/${type}`
             });
@@ -115,10 +117,13 @@ class AdminService {
             if (type !== undefined) updateData.type = type;
             if (price !== undefined || category !== undefined) {
                 // The price from the frontend is the original price
-                const originalPrice = price !== undefined ? Number(price) : Number(product.originalPrice ?? product.price);
+                const productCategory = category ?? product.category;
+                const originalPrice = productCategory === PRODUCT_CATEGORY.sticker
+                    ? SINGLE_STICKER_PRICE
+                    : (price !== undefined ? Number(price) : Number(product.originalPrice ?? product.price));
                 updateData.originalPrice = originalPrice;
                 // Calculate if there's an active offer
-                updateData.price = await OfferHelper.calculatePriceWithActiveOffers(category ?? product.category, originalPrice);
+                updateData.price = await OfferHelper.calculatePriceWithActiveOffers(productCategory, originalPrice);
             }
             if (stock !== undefined) updateData.stock = Number(stock);
             if (photo) {
