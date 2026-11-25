@@ -1,7 +1,6 @@
-const STICKER_SIZE_PRICES = { small: 20, medium: 25 };
-
-export const getItemPrice = (product, size) =>
-  (product.category === 'stickers' && STICKER_SIZE_PRICES[size?.toLowerCase()]) || product.price;
+// Every product price, including Sticker Single, comes from the admin dashboard.
+// Size remains an order option but does not override the product's configured price.
+export const getItemPrice = (product) => Number(product.price);
 
 export const getProductDiscount = (product, size) => {
   const price = getItemPrice(product, size);

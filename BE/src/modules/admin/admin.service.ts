@@ -231,10 +231,6 @@ class AdminService {
                 return res.status(400).json({ success: false, message: "All fields are required" });
             }
 
-            if (category === PRODUCT_CATEGORY.sticker) {
-                return res.status(400).json({ success: false, message: "Offers cannot be applied to Sticker Single products" });
-            }
-
             const offerStartDate = new Date(startDate);
             const offerExpiryDate = new Date(expiryDate);
             if (Number(discountValue) <= 0 || Number.isNaN(offerStartDate.getTime()) || Number.isNaN(offerExpiryDate.getTime()) || offerExpiryDate <= offerStartDate) {

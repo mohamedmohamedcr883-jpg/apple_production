@@ -17,7 +17,6 @@ export class OfferRepository extends AbstractRepository<IOffer> {
             startDate: { $lte: now },
             expiryDate: { $gt: now },
             discountValue: { $gt: 0 },
-            category: { $ne: "stickers" },
         }).select('title category discountType discountValue startDate expiryDate')
             .sort({ createdAt: -1, _id: -1 }).lean().exec();
     }

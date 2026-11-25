@@ -3,11 +3,6 @@ import { OfferRepository } from "../../models/offer/offer.repository";
 import { IOffer } from "../../utils/common/interfaces";
 
 export class OfferHelper {
-    // Single stickers have fixed small/medium prices and are never discounted.
-    private static isOfferEligibleCategory(category: string): boolean {
-        return category !== "stickers";
-    }
-
     public static calculateDiscountedPrice(originalPrice: number, discountType: string, discountValue: number): number {
         if (discountType === 'percentage') {
             const discountAmount = originalPrice * (discountValue / 100);
@@ -19,8 +14,6 @@ export class OfferHelper {
     }
 
     public static async applyOfferToCategory(category: string, offer: IOffer) {
-        if (!this.isOfferEligibleCategory(category)) return;
-
         const productRepo = new ProductRepository();
         const products = await productRepo.getAllProducts({ category } as any, {}, {});
 
@@ -38,15 +31,6 @@ export class OfferHelper {
         const offerRepo = new OfferRepository();
         const productRepo = new ProductRepository();
         const products = await productRepo.getAllProducts({ category } as any, {}, {});
-
-        // Clean up any legacy Sticker Single offer prices and keep their fixed pricing intact.
-        if (!this.isOfferEligibleCategory(category)) {
-            await Promise.all(products.map((product) => {
-                const originalPrice = (product as any).originalPrice ?? product.price;
-                return productRepo.update(String(product._id), { price: originalPrice, originalPrice });
-            }));
-            return;
-        }
 
         // Check if there is another active offer for this category with future expiry
         const now = new Date();
@@ -81,8 +65,6 @@ export class OfferHelper {
     }
 
     public static async calculatePriceWithActiveOffers(category: string, price: number): Promise<number> {
-        if (!this.isOfferEligibleCategory(category)) return price;
-
         const offerRepo = new OfferRepository();
         const now = new Date();
         const activeOffers = await offerRepo.getAllOffers({

@@ -177,7 +177,7 @@ const AdminDashboard = () => {
   };
   const confirmEdit = async () => {
     const formData = new FormData();
-    const price = editTarget.category === 'stickers' ? 20 : Number(editTarget.price);
+    const price = Number(editTarget.price);
     formData.set('name', editTarget.name);
     formData.set('category', editTarget.category);
     formData.set('type', editTarget.type);
@@ -256,7 +256,7 @@ const AdminDashboard = () => {
             </div>
             <div className="form-group" style={{ marginTop: '12px' }}>
               <label htmlFor="editPrice">Original Price (LE)</label>
-              <input type="number" id="editPrice" step="0.01" value={editTarget.price} onChange={e => setEditTarget({ ...editTarget, price: e.target.value })} readOnly={editTarget.category === 'stickers'} style={editTarget.category === 'stickers' ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : {}} />
+              <input type="number" id="editPrice" min="0" step="0.01" value={editTarget.price} onChange={e => setEditTarget({ ...editTarget, price: e.target.value })} />
             </div>
             <div className="form-group" style={{ marginTop: '12px' }}>
               <label htmlFor="editStock">Stock</label>
@@ -384,17 +384,7 @@ const AdminDashboard = () => {
                       <div className="form-group"><label>Stock</label><input type="number" name="stock" placeholder="0" className="form-control" /></div>
                       <div className="form-group">
                         <label>Category</label>
-                        <select name="category" required className="form-control" onChange={(e) => {
-                          const apPrice = e.currentTarget.form.elements.price;
-                          if (e.target.value === 'stickers') {
-                            apPrice.value = '20';
-                            apPrice.readOnly = true;
-                            apPrice.style.backgroundColor = '#e9ecef';
-                          } else {
-                            apPrice.readOnly = false;
-                            apPrice.style.backgroundColor = '';
-                          }
-                        }}>
+                        <select name="category" required className="form-control">
                           <option value="">Select category...</option>
                           <option value="stickers">Sticker Single</option>
                           <option value="sticker sheets">Sticker Sheet</option>
@@ -489,6 +479,7 @@ const AdminDashboard = () => {
                        <label>Category</label>
                        <select value={offerForm.category} onChange={e=>setOfferForm({...offerForm, category: e.target.value})} required>
                            <option value="">Select category</option>
+                           <option value="stickers">Sticker Single</option>
                            <option value="sticker sheets">Sticker Sheet</option>
                            <option value="mugs">Mug</option>
                            <option value="medals">Keychain</option>

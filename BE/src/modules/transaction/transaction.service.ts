@@ -38,7 +38,6 @@ const SHIPPING_BY_GOVERNORATE: Record<string, number> = {
 };
 const CASH_ON_DELIVERY_FEE = 2;
 const MIN_ORDER_SUBTOTAL = 50;
-const STICKER_SIZE_PRICES: Record<string, number> = { small: 20, medium: 25 };
 
 interface OrderItem {
     productId: string;
@@ -48,8 +47,7 @@ interface OrderItem {
     unitPrice: number;
 }
 
-const getItemPrice = (category: string, price: number, size?: string) =>
-    (category === "stickers" && STICKER_SIZE_PRICES[size?.toLowerCase() ?? ""]) || price;
+const getItemPrice = (_category: string, price: number, _size?: string) => price;
 
 const escapeHtml = (text: unknown) => String(text)
     .replace(/&/g, "&amp;")
