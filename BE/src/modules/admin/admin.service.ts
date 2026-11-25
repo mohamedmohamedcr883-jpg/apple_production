@@ -231,18 +231,30 @@ class AdminService {
                 return res.status(400).json({ success: false, message: "All fields are required" });
             }
 
+            if (category === PRODUCT_CATEGORY.sticker) {
+                return res.status(400).json({ success: false, message: "Offers cannot be applied to Sticker Single products" });
+            }
+
+            const offerStartDate = new Date(startDate);
+            const offerExpiryDate = new Date(expiryDate);
+            if (Number(discountValue) <= 0 || Number.isNaN(offerStartDate.getTime()) || Number.isNaN(offerExpiryDate.getTime()) || offerExpiryDate <= offerStartDate) {
+                return res.status(400).json({ success: false, message: "Enter a positive discount and an expiry date after the start date" });
+            }
+
             const offer = await this.offerRepository.create({
                 title,
                 category,
                 discountType,
                 discountValue: Number(discountValue),
-                startDate: new Date(startDate),
-                expiryDate: new Date(expiryDate),
+                startDate: offerStartDate,
+                expiryDate: offerExpiryDate,
                 isActive: true,
             } as any);
 
-            // Apply offer to all products in the category
-            await OfferHelper.applyOfferToCategory(category, offer as any);
+            // Only apply an offer once it has actually started.
+            if (offerStartDate <= new Date()) {
+                await OfferHelper.applyOfferToCategory(category, offer as any);
+            }
 
             return res.status(201).json({
                 success: true,

@@ -489,7 +489,6 @@ const AdminDashboard = () => {
                        <label>Category</label>
                        <select value={offerForm.category} onChange={e=>setOfferForm({...offerForm, category: e.target.value})} required>
                            <option value="">Select category</option>
-                           <option value="stickers">Sticker Single</option>
                            <option value="sticker sheets">Sticker Sheet</option>
                            <option value="mugs">Mug</option>
                            <option value="medals">Keychain</option>

@@ -18,7 +18,17 @@ export const scheduleOfferExpiry = () => {
             for (const offer of expiredOffers) {
                 log(`[CRON] Expiring offer: ${offer.title}`);
                 await offerRepo.update(String(offer._id), { isActive: false });
-                await OfferHelper.revertOfferFromCategory(offer.category);
+            }
+
+            // Refresh each category so scheduled offers start when due and expired
+            // offers are removed from product prices.
+            const activeOffers = await offerRepo.getAllOffers({ isActive: true } as any, {}, {});
+            const categories = new Set([
+                ...expiredOffers.map(offer => offer.category),
+                ...activeOffers.map(offer => offer.category),
+            ]);
+            for (const category of categories) {
+                await OfferHelper.revertOfferFromCategory(category);
             }
         } catch (error) {
             log("[CRON] Error during offer expiry check:", error);
